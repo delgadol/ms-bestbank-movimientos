@@ -1,28 +1,15 @@
 package com.bestbank.movimientos.bussiness.dto.req;
 
-import com.bestbank.movimientos.domain.utils.TipoOperacion;
 
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
-public class InfoTransaccionInternaReq {
+@Data
+@EqualsAndHashCode(callSuper=false)
+public class InfoTransaccionInternaReq extends InfoTransacionReq{
   
   @NotEmpty
-  private String codPersona;
+  private String IdProducto2;
   
-  @NotNull
-  private TipoOperacion tipoOperacion;
-  
-  @NotEmpty
-  private String desdeIdProducto;
-  
-  @NotEmpty
-  private String paraIdProducto;
-  
-  
-  @NotNull
-  private Double montoOperacion;
-  
-  @NotEmpty
-  private String obervacionTransaccion;
 }

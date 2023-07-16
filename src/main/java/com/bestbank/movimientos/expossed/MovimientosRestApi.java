@@ -8,9 +8,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.bestbank.movimientos.bussiness.dto.req.InfoTransaccionInternaReq;
 import com.bestbank.movimientos.bussiness.dto.req.InfoTransacionReq;
 import com.bestbank.movimientos.bussiness.dto.res.SaldoRes;
 import com.bestbank.movimientos.bussiness.dto.res.TransaccionRes;
+import com.bestbank.movimientos.bussiness.services.MovimientosService;
 
 import jakarta.validation.Valid;
 import reactor.core.publisher.Flux;
@@ -20,6 +22,15 @@ import reactor.core.publisher.Mono;
 @Validated
 @RequestMapping("/v1/transacciones")
 public class MovimientosRestApi {
+  
+  public MovimientosRestApi(MovimientosService servMovimientos) {
+    super();
+    this.servMovimientos = servMovimientos;
+  }
+
+  private final MovimientosService servMovimientos;
+  
+  
   
   /**
    * Obtiene el saldo de un producto específico.
@@ -41,7 +52,7 @@ public class MovimientosRestApi {
    */
   @GetMapping("/clientes/{idCliente}/resumenes")
   public Flux<SaldoRes> getAllBalanceByClientId(@PathVariable(name="idCliente") String idCliente){
-    return null;
+    return servMovimientos.getAllBalanceByClientId(idCliente);
   }
   
   /**
@@ -52,7 +63,18 @@ public class MovimientosRestApi {
    */
   @PostMapping("")
   public Mono<TransaccionRes> postTransaccion(@Valid @RequestBody InfoTransacionReq transaccion){
-    return null;
+    return servMovimientos.postTransaccion(transaccion);
+  }
+  
+  /**
+   * Crea una nueva transacción con la información proporcionada.
+   *
+   * @param transaccion la información de la transacción a crear
+   * @return un Mono que emite el objeto TransaccionRes resultante
+   */
+  @PostMapping("/internas")
+  public Mono<TransaccionRes> postTransaccionInterna(@Valid @RequestBody InfoTransaccionInternaReq transaccion){
+    return servMovimientos.postTransaccionIntoBanck(transaccion);
   }
   
   /**
@@ -63,7 +85,7 @@ public class MovimientosRestApi {
    */ 
   @GetMapping("/{idProducto}")
   public Flux<TransaccionRes> getAllTransaccionByProductID(@PathVariable(name="idProducto") String idProducto){
-    return null; 
+    return servMovimientos.getAllTransaccionByProductID(idProducto); 
   }
 
 }

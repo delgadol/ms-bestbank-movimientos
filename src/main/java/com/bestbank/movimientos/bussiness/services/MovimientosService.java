@@ -1,5 +1,6 @@
 package com.bestbank.movimientos.bussiness.services;
 
+import com.bestbank.movimientos.bussiness.dto.req.InfoTransaccionInternaReq;
 import com.bestbank.movimientos.bussiness.dto.req.InfoTransacionReq;
 import com.bestbank.movimientos.bussiness.dto.res.SaldoRes;
 import com.bestbank.movimientos.bussiness.dto.res.TransaccionRes;
@@ -16,6 +17,8 @@ public interface MovimientosService {
   public Flux<TransaccionRes> getAllTransaccionByProductID(String idProducto);  
   
   public Mono<TransaccionRes> postTransaccion(InfoTransacionReq transaccion);
+  
+  public Mono<TransaccionRes> postTransaccionIntoBanck(InfoTransaccionInternaReq operacionInterna);
   
   
 }

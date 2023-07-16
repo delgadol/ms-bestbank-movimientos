@@ -1,22 +1,34 @@
 package com.bestbank.movimientos.bussiness.services.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.bestbank.movimientos.bussiness.dto.req.InfoTransaccionInternaReq;
 import com.bestbank.movimientos.bussiness.dto.req.InfoTransacionReq;
 import com.bestbank.movimientos.bussiness.dto.res.SaldoRes;
 import com.bestbank.movimientos.bussiness.dto.res.TransaccionRes;
 import com.bestbank.movimientos.bussiness.services.MovimientosService;
 import com.bestbank.movimientos.bussiness.services.ProductoApiClientService;
 import com.bestbank.movimientos.bussiness.utils.ModelMapperUtils;
+import com.bestbank.movimientos.bussiness.utils.TransaccionesUtils;
+import com.bestbank.movimientos.domain.model.Saldo;
 import com.bestbank.movimientos.domain.model.Transaccion;
 import com.bestbank.movimientos.domain.repositories.MovimientosRepository;
 import com.bestbank.movimientos.domain.repositories.SaldoRespository;
+import com.bestbank.movimientos.domain.utils.ResultadoTransaccion;
+import com.bestbank.movimientos.domain.utils.TipoComision;
+import com.bestbank.movimientos.domain.utils.TipoOperacion;
 
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+@Slf4j
 @Service
 @Transactional
 public class MovimientosServiceImpl implements MovimientosService{
@@ -97,8 +109,120 @@ public class MovimientosServiceImpl implements MovimientosService{
 
   @Override
   public Mono<TransaccionRes> postTransaccion(InfoTransacionReq transaccion) {
-    // TODO Auto-generated method stub
-    return null;
+    return servProdApi.getProductoRoles(transaccion.getIdProducto())
+        .filter(prodRolApiF1 -> TransaccionesUtils.clienteAutorizado(transaccion, prodRolApiF1))
+        .flatMap(prodRolApi -> {
+          return mongoOperations.count(servMovRepo.getDatosDeEsteMesQuery(prodRolApi.getId()), Transaccion.class)
+            .filter(countAny -> true)
+            .flatMap( numOptmes -> {
+              log.info(String.format("Numero Opeaciones mes : %d", numOptmes));
+              /** Verificamos el Saldo **/
+              return getSaldoPorIdProd(transaccion.getIdProducto())
+                  .flatMap(saldoActual -> {
+                    Saldo nuevoSaldoReg = ModelMapperUtils.map(saldoActual, Saldo.class);
+                    log.info(String.format("Saldo Actual : %.2f", nuevoSaldoReg.getSaldoActual()));
+                    Transaccion nuevaTransaccion = TransaccionesUtils.getRegistroOperacion(transaccion, prodRolApi);
+                    nuevaTransaccion.setSaldoInicial(nuevoSaldoReg.getSaldoActual());
+                    nuevaTransaccion.setSaldoFinal(nuevoSaldoReg.getSaldoActual());
+                    Transaccion nuevaComision = TransaccionesUtils.getRegistroOperacion(transaccion, prodRolApi);
+                    List<Transaccion> listaTransacciones = new ArrayList<>();
+                    Double comision = TransaccionesUtils.getComision(numOptmes, prodRolApi);
+                    Double nuevoSaldo = TransaccionesUtils.nuevoSaldo(
+                        transaccion.getTipoOperacion(), nuevoSaldoReg.getSaldoActual(), comision, transaccion.getMontoOperacion());
+                    if (nuevoSaldo >= 0.00D ) {
+                      log.info(String.format("Transaccion esta %s", ResultadoTransaccion.APROBADA));
+                      nuevaTransaccion.setResultadoTransaccion(ResultadoTransaccion.APROBADA);
+                      nuevaTransaccion.setSaldoFinal(nuevoSaldo + comision);
+                      nuevoSaldoReg.setSaldoActual(nuevoSaldo);
+                    }
+                    listaTransacciones.add(nuevaTransaccion);
+                    if (comision > 0.00D) {
+                      nuevaComision.setMontoTransaccion(comision);
+                      nuevaComision.setCodigoOperacion(TipoOperacion.CARGO);
+                      nuevaComision.setSaldoInicial(nuevoSaldo + comision);
+                      nuevaComision.setSaldoFinal(nuevoSaldo);
+                      nuevaComision.setObservacionTransaccion(TipoComision.COMISION_LIMITE_OPERACION.toString());
+                      nuevaComision.setResultadoTransaccion(ResultadoTransaccion.APROBADA);
+                      listaTransacciones.add(nuevaComision);
+                    }
+                    return servSaldoRepo.save(nuevoSaldoReg)
+                        .flatMap(saldoDB -> {
+                          return servMovRepo.saveAll(listaTransacciones)
+                              .take(1)
+                              .single()
+                              .flatMap( item -> {
+                                return Mono.just(ModelMapperUtils.map(item, TransaccionRes.class));
+                              });
+                        });
+                  });
+            });
+        });
   }
+  
+  @Override
+  public Mono<TransaccionRes> postTransaccionIntoBanck(InfoTransaccionInternaReq operacionInterna) {
+    
+    if (operacionInterna.getIdProducto().contains(operacionInterna.getIdProducto2())) {
+      throw new DuplicateKeyException("Productos deben ser diferentes");
+    }
+    /** Esta es la operacion de cargo */
+    InfoTransacionReq outTransaccion = new InfoTransacionReq();
+    outTransaccion.setIdProducto(operacionInterna.getIdProducto());
+    outTransaccion.setCodPersona(operacionInterna.getCodPersona());
+    outTransaccion.setTipoOperacion(TipoOperacion.CARGO);
+    outTransaccion.setMontoOperacion(operacionInterna.getMontoOperacion());
+    outTransaccion.setObervacionTransaccion(operacionInterna.getObervacionTransaccion());
+    /** esta es la operacion de abono */
+    InfoTransacionReq inTransaccion = new InfoTransacionReq();
+    inTransaccion.setIdProducto(operacionInterna.getIdProducto2());
+    inTransaccion.setCodPersona(operacionInterna.getCodPersona());
+    inTransaccion.setTipoOperacion(TipoOperacion.ABONO);
+    inTransaccion.setMontoOperacion(operacionInterna.getMontoOperacion());
+    inTransaccion.setObervacionTransaccion(operacionInterna.getObervacionTransaccion());
+    /** lanzamos la ejecuion por funcion de transacciones **/
+    return servProdApi.getProducto(outTransaccion.getIdProducto())
+        .flatMap( prodOut -> {
+          return servProdApi.getProducto(inTransaccion.getIdProducto())
+              .flatMap(prodIn -> {
+                return postTransaccion(outTransaccion)
+                    .filter(outTransRes -> 
+                    outTransRes.getResultadoTransaccion()==ResultadoTransaccion.APROBADA)
+                    .flatMap( transOut -> {
+                      return postTransaccion(inTransaccion)
+                          .filter(inTransRes -> 
+                          inTransRes.getResultadoTransaccion()==ResultadoTransaccion.APROBADA)
+                          .flatMap( transIn -> {
+                            return Mono.just(transOut);
+                          })
+                          .switchIfEmpty(rollBackTransaccion(outTransaccion));
+                    })
+                    .switchIfEmpty(
+                        Mono.error( new RuntimeException("Transaccion Fallida Cuenta Emisora")));
+              });
+        });
+    
+  }
+  
+  /** rollback transaccion **/
+  
+  public Mono<TransaccionRes> rollBackTransaccion(InfoTransacionReq transaccion){
+    return postTransaccion(transaccion);
+    
+  }
+  
+  /** Buscar Saldo Actual **/
+  
+  private Mono<Saldo> getSaldoPorIdProd(String idProducto) {
+    return servSaldoRepo.findFirstByCodigoProducto(idProducto)
+    .flatMap(saldoActual -> {
+      return Mono.just(saldoActual);      
+    });
+  }
+  
+  /** Saldo Nuevo Saldo **/
+  
+  
+  
+  
 
 }
