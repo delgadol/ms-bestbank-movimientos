@@ -6,6 +6,9 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+/**
+ * Clase que representa la solicitud de información de transacción.
+ */
 
 @Data
 public class InfoTransacionReq {

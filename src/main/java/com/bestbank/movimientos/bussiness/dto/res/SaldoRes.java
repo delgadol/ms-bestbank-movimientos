@@ -4,6 +4,9 @@ import com.bestbank.movimientos.domain.utils.TipoProducto;
 
 import lombok.Data;
 
+/**
+ * Clase que representa la respuesta de un saldo.
+ */
 @Data
 public class SaldoRes {
   

@@ -13,6 +13,13 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.reactive.result.method.annotation.ResponseEntityExceptionHandler;
 
+/**
+ * Clase encargada de manejar las excepciones y generar respuestas adecuadas 
+ * en el contexto de una API REST.
+ * Esta clase extiende de ResponseEntityExceptionHandler para aprovechar las 
+ * funcionalidades de manejo de excepciones proporcionadas por Spring.
+ */
+
 //@ControllerAdvice
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
   @ExceptionHandler

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bestbank.movimientos.bussiness.dto.req.InfoTransaccionInternaReq;
 import com.bestbank.movimientos.bussiness.dto.req.InfoTransacionReq;
+import com.bestbank.movimientos.bussiness.dto.res.SaldoDiarioInfoRes;
 import com.bestbank.movimientos.bussiness.dto.res.SaldoRes;
 import com.bestbank.movimientos.bussiness.dto.res.TransaccionRes;
 import com.bestbank.movimientos.bussiness.services.MovimientosService;
@@ -40,7 +41,8 @@ public class MovimientosRestApi {
    */
   
   @GetMapping("/{idProducto}/saldo")
-  public Mono<SaldoRes> getProductBalance(@PathVariable(name="idProducto") String idProdcuto){
+  public Mono<SaldoRes> getProductBalance(
+      @PathVariable(name = "idProducto") String idProducto) {
     return null;
   }
   
@@ -51,7 +53,8 @@ public class MovimientosRestApi {
    * @return un Flux que emite objetos SaldoRes
    */
   @GetMapping("/clientes/{idCliente}/resumenes")
-  public Flux<SaldoRes> getAllBalanceByClientId(@PathVariable(name="idCliente") String idCliente){
+  public Flux<SaldoRes> getAllBalanceByClientId(
+      @PathVariable(name = "idCliente") String idCliente) {
     return servMovimientos.getAllBalanceByClientId(idCliente);
   }
   
@@ -62,7 +65,7 @@ public class MovimientosRestApi {
    * @return un Mono que emite el objeto TransaccionRes resultante
    */
   @PostMapping("")
-  public Mono<TransaccionRes> postTransaccion(@Valid @RequestBody InfoTransacionReq transaccion){
+  public Mono<TransaccionRes> postTransaccion(@Valid @RequestBody InfoTransacionReq transaccion) {
     return servMovimientos.postTransaccion(transaccion);
   }
   
@@ -73,7 +76,8 @@ public class MovimientosRestApi {
    * @return un Mono que emite el objeto TransaccionRes resultante
    */
   @PostMapping("/internas")
-  public Mono<TransaccionRes> postTransaccionInterna(@Valid @RequestBody InfoTransaccionInternaReq transaccion){
+  public Mono<TransaccionRes> postTransaccionInterna(
+      @Valid @RequestBody InfoTransaccionInternaReq transaccion) {
     return servMovimientos.postTransaccionIntoBanck(transaccion);
   }
   
@@ -84,8 +88,15 @@ public class MovimientosRestApi {
    * @return un Flux que emite objetos TransaccionRes
    */ 
   @GetMapping("/{idProducto}")
-  public Flux<TransaccionRes> getAllTransaccionByProductID(@PathVariable(name="idProducto") String idProducto){
-    return servMovimientos.getAllTransaccionByProductID(idProducto); 
+  public Flux<TransaccionRes> getAllTransaccionByProductId(
+      @PathVariable(name = "idProducto") String idProducto) {
+    return servMovimientos.getAllTransaccionByProductId(idProducto); 
+  }
+  
+  @GetMapping("/{idProducto}/saldosdiarios")
+  public Mono<SaldoDiarioInfoRes> getInformSaldosByIdProducto(
+      @PathVariable(name = "idProducto") String idProducto){
+    return servMovimientos.getInformSaldosByIdProducto(idProducto);    
   }
 
 }

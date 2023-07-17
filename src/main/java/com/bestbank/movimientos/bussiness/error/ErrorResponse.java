@@ -8,6 +8,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Clase que representa una respuesta de error en la aplicación.
+ */
 @Getter
 @Setter
 @AllArgsConstructor

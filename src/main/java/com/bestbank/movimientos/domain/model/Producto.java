@@ -4,7 +4,10 @@ import com.bestbank.movimientos.domain.utils.GrupoProducto;
 import com.bestbank.movimientos.domain.utils.TipoProducto;
 
 import lombok.Data;
-
+/**
+ * Clase que representa un producto.
+ * 
+ */
 @Data
 public class Producto {
   
@@ -14,9 +17,9 @@ public class Producto {
   
   private TipoProducto tipoProducto;
   
-  private String codigoProducto ;
+  private String codigoProducto;
   
-  private String estado ;
+  private String estado;
   
   private String tipoCliente;
   

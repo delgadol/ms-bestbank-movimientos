@@ -1,5 +1,8 @@
 package com.bestbank.movimientos.domain.utils;
 
+/**
+ * Enumeración que representa los diferentes tipos de productos.
+ */
 public enum TipoProducto {
   
   CTAA("Cuenta de Ahorro"),

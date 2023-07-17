@@ -4,6 +4,9 @@ import com.bestbank.movimientos.domain.utils.TipoCliente;
 
 import lombok.Data;
 
+/**
+ * Clase que representa la respuesta de un cliente.
+ */
 @Data
 public class ClienteRes {
   

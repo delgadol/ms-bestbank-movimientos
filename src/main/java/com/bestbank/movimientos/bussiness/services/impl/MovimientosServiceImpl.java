@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.bestbank.movimientos.bussiness.dto.req.InfoTransaccionInternaReq;
 import com.bestbank.movimientos.bussiness.dto.req.InfoTransacionReq;
+import com.bestbank.movimientos.bussiness.dto.res.SaldoDiarioInfoRes;
 import com.bestbank.movimientos.bussiness.dto.res.SaldoRes;
 import com.bestbank.movimientos.bussiness.dto.res.TransaccionRes;
 import com.bestbank.movimientos.bussiness.services.MovimientosService;
@@ -31,7 +32,7 @@ import reactor.core.publisher.Mono;
 @Slf4j
 @Service
 @Transactional
-public class MovimientosServiceImpl implements MovimientosService{
+public class MovimientosServiceImpl implements MovimientosService {
 
   private final ProductoApiClientService servProdApi;
   
@@ -41,6 +42,18 @@ public class MovimientosServiceImpl implements MovimientosService{
   
   private final ReactiveMongoOperations mongoOperations;
   
+  /**
+   * Constructor de la implementación de servicios de movimientos.
+   *
+   * @param api               
+   Instancia de ProductoApiClientService para interactuar con el API de productos.
+   * @param servMovRepo       
+   Repositorio de movimientos para acceder y gestionar los movimientos en la base de datos.
+   * @param servRepoSaldo     
+   Repositorio de saldos para acceder y gestionar los saldos en la base de datos.
+   * @param mongoOperations   
+   Operaciones reactivas de MongoDB para realizar consultas y operaciones en la base de datos.
+   */
   public MovimientosServiceImpl(ProductoApiClientService api, 
       MovimientosRepository servMovRepo, SaldoRespository servRepoSaldo, 
       ReactiveMongoOperations mongoOperations) {
@@ -59,10 +72,10 @@ public class MovimientosServiceImpl implements MovimientosService{
    * @return un Mono que emite el objeto SaldoRes del producto
    */
   @Override
-  public Mono<SaldoRes> getProductBalance(String idProdcuto) {
-    return servProdApi.getProducto(idProdcuto)
-        .flatMap(prodApi ->{
-          return servSaldoRepo.findFirstByCodigoProducto(idProdcuto)
+  public Mono<SaldoRes> getProductBalance(String idProducto) {
+    return servProdApi.getProducto(idProducto)
+        .flatMap(prodApi -> {
+          return servSaldoRepo.findFirstByCodigoProducto(idProducto)
               .flatMap(entidad -> {
                 return Mono.just(ModelMapperUtils.map(entidad, SaldoRes.class));
               });
@@ -95,11 +108,13 @@ public class MovimientosServiceImpl implements MovimientosService{
    * @return un Flux que emite objetos TransaccionRes
    */
   @Override
-  public Flux<TransaccionRes> getAllTransaccionByProductID(String idProducto) {
+  public Flux<TransaccionRes> getAllTransaccionByProductId(String idProducto) {
     return servProdApi.getProducto(idProducto)
         .flux()
         .flatMap(productoApi -> {
-          return mongoOperations.find(servMovRepo.getDatosPorCodigoYFechaActualY3MesesAtrasQuery(idProducto),Transaccion.class)
+          return mongoOperations.find(
+              servMovRepo.getDatosPorCodigoYFechaActualY3MesesAtrasQuery(idProducto),
+              Transaccion.class)
               .flatMap(entidad -> {
                 return Mono.just(ModelMapperUtils.map(entidad, TransaccionRes.class)).flux();
               })
@@ -112,24 +127,27 @@ public class MovimientosServiceImpl implements MovimientosService{
     return servProdApi.getProductoRoles(transaccion.getIdProducto())
         .filter(prodRolApiF1 -> TransaccionesUtils.clienteAutorizado(transaccion, prodRolApiF1))
         .flatMap(prodRolApi -> {
-          return mongoOperations.count(servMovRepo.getDatosDeEsteMesQuery(prodRolApi.getId()), Transaccion.class)
+          return mongoOperations.count(servMovRepo.getDatosDeEsteMesQuery(prodRolApi.getId()), 
+              Transaccion.class)
             .filter(countAny -> true)
-            .flatMap( numOptmes -> {
+            .flatMap(numOptmes -> {
               log.info(String.format("Numero Opeaciones mes : %d", numOptmes));
-              /** Verificamos el Saldo **/
               return getSaldoPorIdProd(transaccion.getIdProducto())
                   .flatMap(saldoActual -> {
                     Saldo nuevoSaldoReg = ModelMapperUtils.map(saldoActual, Saldo.class);
                     log.info(String.format("Saldo Actual : %.2f", nuevoSaldoReg.getSaldoActual()));
-                    Transaccion nuevaTransaccion = TransaccionesUtils.getRegistroOperacion(transaccion, prodRolApi);
+                    Transaccion nuevaTransaccion = TransaccionesUtils.getRegistroOperacion(
+                        transaccion, prodRolApi);
                     nuevaTransaccion.setSaldoInicial(nuevoSaldoReg.getSaldoActual());
                     nuevaTransaccion.setSaldoFinal(nuevoSaldoReg.getSaldoActual());
-                    Transaccion nuevaComision = TransaccionesUtils.getRegistroOperacion(transaccion, prodRolApi);
+                    Transaccion nuevaComision = TransaccionesUtils.getRegistroOperacion(
+                        transaccion, prodRolApi);
                     List<Transaccion> listaTransacciones = new ArrayList<>();
                     Double comision = TransaccionesUtils.getComision(numOptmes, prodRolApi);
                     Double nuevoSaldo = TransaccionesUtils.nuevoSaldo(
-                        transaccion.getTipoOperacion(), nuevoSaldoReg.getSaldoActual(), comision, transaccion.getMontoOperacion());
-                    if (nuevoSaldo >= 0.00D ) {
+                        transaccion.getTipoOperacion(), nuevoSaldoReg.getSaldoActual(), 
+                        comision, transaccion.getMontoOperacion());
+                    if (nuevoSaldo >= 0.00D) {
                       log.info(String.format("Transaccion esta %s", ResultadoTransaccion.APROBADA));
                       nuevaTransaccion.setResultadoTransaccion(ResultadoTransaccion.APROBADA);
                       nuevaTransaccion.setSaldoFinal(nuevoSaldo + comision);
@@ -141,7 +159,8 @@ public class MovimientosServiceImpl implements MovimientosService{
                       nuevaComision.setCodigoOperacion(TipoOperacion.CARGO);
                       nuevaComision.setSaldoInicial(nuevoSaldo + comision);
                       nuevaComision.setSaldoFinal(nuevoSaldo);
-                      nuevaComision.setObservacionTransaccion(TipoComision.COMISION_LIMITE_OPERACION.toString());
+                      nuevaComision.setObservacionTransaccion(
+                          TipoComision.COMISION_LIMITE_OPERACION.toString());
                       nuevaComision.setResultadoTransaccion(ResultadoTransaccion.APROBADA);
                       listaTransacciones.add(nuevaComision);
                     }
@@ -150,7 +169,7 @@ public class MovimientosServiceImpl implements MovimientosService{
                           return servMovRepo.saveAll(listaTransacciones)
                               .take(1)
                               .single()
-                              .flatMap( item -> {
+                              .flatMap(item -> {
                                 return Mono.just(ModelMapperUtils.map(item, TransaccionRes.class));
                               });
                         });
@@ -159,70 +178,86 @@ public class MovimientosServiceImpl implements MovimientosService{
         });
   }
   
+  /**
+   * Realiza una solicitud POST para realizar una transacción interna en el banco.
+   *
+   * @param operacionInterna La información de transacción interna.
+   * @return Un Mono que emite la respuesta de la transacción realizada.
+   */
   @Override
   public Mono<TransaccionRes> postTransaccionIntoBanck(InfoTransaccionInternaReq operacionInterna) {
     
     if (operacionInterna.getIdProducto().contains(operacionInterna.getIdProducto2())) {
       throw new DuplicateKeyException("Productos deben ser diferentes");
     }
-    /** Esta es la operacion de cargo */
     InfoTransacionReq outTransaccion = new InfoTransacionReq();
     outTransaccion.setIdProducto(operacionInterna.getIdProducto());
     outTransaccion.setCodPersona(operacionInterna.getCodPersona());
     outTransaccion.setTipoOperacion(TipoOperacion.CARGO);
     outTransaccion.setMontoOperacion(operacionInterna.getMontoOperacion());
     outTransaccion.setObervacionTransaccion(operacionInterna.getObervacionTransaccion());
-    /** esta es la operacion de abono */
     InfoTransacionReq inTransaccion = new InfoTransacionReq();
     inTransaccion.setIdProducto(operacionInterna.getIdProducto2());
     inTransaccion.setCodPersona(operacionInterna.getCodPersona());
     inTransaccion.setTipoOperacion(TipoOperacion.ABONO);
     inTransaccion.setMontoOperacion(operacionInterna.getMontoOperacion());
     inTransaccion.setObervacionTransaccion(operacionInterna.getObervacionTransaccion());
-    /** lanzamos la ejecuion por funcion de transacciones **/
     return servProdApi.getProducto(outTransaccion.getIdProducto())
-        .flatMap( prodOut -> {
+        .flatMap(prodOut -> { 
           return servProdApi.getProducto(inTransaccion.getIdProducto())
               .flatMap(prodIn -> {
                 return postTransaccion(outTransaccion)
                     .filter(outTransRes -> 
-                    outTransRes.getResultadoTransaccion()==ResultadoTransaccion.APROBADA)
-                    .flatMap( transOut -> {
+                    outTransRes.getResultadoTransaccion() == ResultadoTransaccion.APROBADA)
+                    .flatMap(transOut -> {
                       return postTransaccion(inTransaccion)
                           .filter(inTransRes -> 
-                          inTransRes.getResultadoTransaccion()==ResultadoTransaccion.APROBADA)
-                          .flatMap( transIn -> {
+                          inTransRes.getResultadoTransaccion() == ResultadoTransaccion.APROBADA)
+                          .flatMap(transIn -> {
                             return Mono.just(transOut);
                           })
                           .switchIfEmpty(rollBackTransaccion(outTransaccion));
                     })
                     .switchIfEmpty(
-                        Mono.error( new RuntimeException("Transaccion Fallida Cuenta Emisora")));
+                        Mono.error(new RuntimeException("Transaccion Fallida Cuenta Emisora")));
               });
         });
     
   }
   
-  /** rollback transaccion **/
-  
-  public Mono<TransaccionRes> rollBackTransaccion(InfoTransacionReq transaccion){
-    return postTransaccion(transaccion);
-    
+  public Mono<SaldoDiarioInfoRes> getInformSaldosByIdProducto(String idProducto){
+    return servProdApi.getProductoRoles(idProducto)
+        .flatMap(prodApi -> {
+          return mongoOperations.find(servMovRepo.getDatosDeEsteMesQuery(idProducto), 
+              Transaccion.class)
+              .collectList()
+              .flatMap(listTransacciones -> {
+                return  Mono.just(
+                    TransaccionesUtils.getInfoSaldoDiario(idProducto, listTransacciones)
+                    );
+              });
+        });
   }
   
-  /** Buscar Saldo Actual **/
+  /*
+   * 
+   * rollback transaccion 
+   * 
+   */
+  public Mono<TransaccionRes> rollBackTransaccion(InfoTransacionReq transaccion) {
+    return postTransaccion(transaccion);    
+  }
   
+  /*
+   * 
+   * Buscar Saldo Actual
+   */  
   private Mono<Saldo> getSaldoPorIdProd(String idProducto) {
     return servSaldoRepo.findFirstByCodigoProducto(idProducto)
     .flatMap(saldoActual -> {
       return Mono.just(saldoActual);      
     });
   }
-  
-  /** Saldo Nuevo Saldo **/
-  
-  
-  
   
 
 }

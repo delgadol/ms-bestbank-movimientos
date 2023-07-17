@@ -7,6 +7,11 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+/**
+ * Clase que representa la respuesta de los roles de un producto, 
+ * extendiendo la clase "ProductoRes".
+ */
+
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class ProductoRolesRes extends ProductoRes {

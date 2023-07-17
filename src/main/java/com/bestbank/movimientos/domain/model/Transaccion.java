@@ -1,6 +1,8 @@
 package com.bestbank.movimientos.domain.model;
 
 
+import java.beans.Transient;
+import java.util.Calendar;
 import java.util.Date;
 
 import org.springframework.data.annotation.Id;
@@ -15,7 +17,8 @@ import lombok.Data;
 
 /**
  * Representa una transacción.
- * La clase Transaccion es una entidad que se mapea a la colección "movimientos" en la base de datos.
+ * La clase Transaccion es una entidad que se mapea a la
+ *  colección "movimientos" en la base de datos.
  */
 @Document(collection = "movimientos")
 @Data
@@ -47,6 +50,13 @@ public class Transaccion {
   private Double saldoInicial;
   
   private Double saldoFinal;
+  
+  @Transient
+  public int getDiaTransaccion() {
+    Calendar calendar = Calendar.getInstance();
+    calendar.setTime(this.getFechaTransaccion());
+    return calendar.get(Calendar.DAY_OF_MONTH);
+  }
   
 
 }

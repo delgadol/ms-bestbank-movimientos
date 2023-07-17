@@ -12,14 +12,21 @@ import com.bestbank.movimientos.domain.model.Producto;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
+/**
+ * Implementación de la interfaz ProductoApiClientService que proporciona 
+ * servicios para interactuar con el API de clientes de productos.
+ * Esta clase se encarga de realizar llamadas HTTP al API de productos 
+ * y gestionar las respuestas.
+ */
+
 @Slf4j
 @Service
-public class ProductoApiClientServiceImpl implements ProductoApiClientService{
+public class ProductoApiClientServiceImpl implements ProductoApiClientService {
 
   @Value("${app.productosUrl}")
   private String productoUrl;
   
-  @Value("${app.clientesUrl")
+  @Value("${app.clientesUrl}")
   private String clientesUrl;
   
   @Value("${app.productoRolUrl}")
