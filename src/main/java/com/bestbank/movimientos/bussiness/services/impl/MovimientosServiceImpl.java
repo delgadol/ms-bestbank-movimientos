@@ -122,6 +122,12 @@ public class MovimientosServiceImpl implements MovimientosService {
         });
   }
 
+  /**
+   * Crea una nueva transacción y la guarda en el sistema.
+   * 
+   * @param transaccion Objeto que contiene la información de la transacción a crear.
+   * @return Mono que emite la respuesta de la transacción creada.
+   */
   @Override
   public Mono<TransaccionRes> postTransaccion(InfoTransacionReq transaccion) {
     return servProdApi.getProductoRoles(transaccion.getIdProducto())
@@ -225,6 +231,12 @@ public class MovimientosServiceImpl implements MovimientosService {
     
   }
   
+  /**
+   * Obtiene la información de saldos diarios por ID de producto.
+   * 
+   * @param idProducto Identificador del producto del cual se desea obtener la información de saldos.
+   * @return Mono que emite la respuesta con la información de saldos diarios.
+   */
   public Mono<SaldoDiarioInfoRes> getInformSaldosByIdProducto(String idProducto){
     return servProdApi.getProductoRoles(idProducto)
         .flatMap(prodApi -> {
@@ -238,6 +250,27 @@ public class MovimientosServiceImpl implements MovimientosService {
               });
         });
   }
+  
+  /**
+   * Obtiene todos los impuestos asociados a un producto por su ID.
+   * 
+   * @param idProducto Identificador del producto del cual se desean obtener los impuestos.
+   * @return Mono que emite la respuesta con todos los impuestos asociados al producto.
+   */
+  @Override
+  public Mono<TransaccionRes> getAllTaxByIdProduct(String idProducto) {
+    return servProdApi.getProductoRoles(idProducto)
+        .flatMap(prodApi -> {
+          return mongoOperations.find(servMovRepo.getDatosDeEsteMesQuery(idProducto), 
+              Transaccion.class)
+              .filter(itemDb -> itemDb.getObservacionTransaccion().contains("COMISION"))
+              .single()
+              .flatMap(itemAf1 -> {
+                return Mono.just(ModelMapperUtils.map(itemAf1, TransaccionRes.class));
+              });
+        });
+  }
+  
   
   /*
    * 
@@ -258,6 +291,6 @@ public class MovimientosServiceImpl implements MovimientosService {
       return Mono.just(saldoActual);      
     });
   }
-  
+
 
 }

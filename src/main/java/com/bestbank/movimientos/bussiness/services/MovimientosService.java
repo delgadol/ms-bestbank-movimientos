@@ -1,5 +1,7 @@
 package com.bestbank.movimientos.bussiness.services;
 
+import java.util.List;
+
 import com.bestbank.movimientos.bussiness.dto.req.InfoTransaccionInternaReq;
 import com.bestbank.movimientos.bussiness.dto.req.InfoTransacionReq;
 import com.bestbank.movimientos.bussiness.dto.res.SaldoDiarioInfoRes;
@@ -28,5 +30,5 @@ public interface MovimientosService {
   
   public Mono<SaldoDiarioInfoRes> getInformSaldosByIdProducto(String idProducto);
   
-  
+  public Mono<TransaccionRes> getAllTaxByIdProduct(String idProducto);
 }

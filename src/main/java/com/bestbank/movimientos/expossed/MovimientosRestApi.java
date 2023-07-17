@@ -1,5 +1,7 @@
 package com.bestbank.movimientos.expossed;
 
+import java.util.List;
+
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -93,10 +95,27 @@ public class MovimientosRestApi {
     return servMovimientos.getAllTransaccionByProductId(idProducto); 
   }
   
+  /* Obtiene los saldos promedios por dias de registro
+   *
+   * @param idProducto el identificador del producto
+   * @return un Monoque emite objetos SaldoDiarioInfoRes
+   */ 
   @GetMapping("/{idProducto}/saldosdiarios")
   public Mono<SaldoDiarioInfoRes> getInformSaldosByIdProducto(
-      @PathVariable(name = "idProducto") String idProducto){
+      @PathVariable(name = "idProducto") String idProducto) {
     return servMovimientos.getInformSaldosByIdProducto(idProducto);    
   }
+  
+    /* Obtiene los comisiones cobradas
+    *
+    * @param idProducto el identificador del producto
+    * @return un Mono que emite objetos SaldoDiarioInfoRes
+    */ 
+  @GetMapping("/{idProducto}/comisiones")
+  public Mono<TransaccionRes> getAllTaxByIdProduct(
+      @PathVariable(name = "idProducto") String idProducto) {
+    return servMovimientos.getAllTaxByIdProduct(idProducto);
+  }
+  
 
 }
