@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.bestbank.movimientos.domain.utils.GrupoProducto;
 import com.bestbank.movimientos.domain.utils.ResultadoTransaccion;
+import com.bestbank.movimientos.domain.utils.TipoInstrumento;
 import com.bestbank.movimientos.domain.utils.TipoOperacion;
 import com.bestbank.movimientos.domain.utils.TipoProducto;
 
@@ -50,6 +51,10 @@ public class Transaccion {
   private Double saldoInicial;
   
   private Double saldoFinal;
+  
+  private TipoInstrumento tipoInstrumento;
+  
+  private String idInstrumento;
   
   @Transient
   public int getDiaTransaccion() {

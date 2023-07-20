@@ -8,8 +8,10 @@ import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.bestbank.movimientos.bussiness.dto.DataTransaccionesDto;
 import com.bestbank.movimientos.bussiness.dto.req.InfoTransaccionInternaReq;
 import com.bestbank.movimientos.bussiness.dto.req.InfoTransacionReq;
+import com.bestbank.movimientos.bussiness.dto.res.ProductoRolesRes;
 import com.bestbank.movimientos.bussiness.dto.res.SaldoDiarioInfoRes;
 import com.bestbank.movimientos.bussiness.dto.res.SaldoRes;
 import com.bestbank.movimientos.bussiness.dto.res.TransaccionRes;
@@ -23,6 +25,7 @@ import com.bestbank.movimientos.domain.repositories.MovimientosRepository;
 import com.bestbank.movimientos.domain.repositories.SaldoRespository;
 import com.bestbank.movimientos.domain.utils.ResultadoTransaccion;
 import com.bestbank.movimientos.domain.utils.TipoComision;
+import com.bestbank.movimientos.domain.utils.TipoInstrumento;
 import com.bestbank.movimientos.domain.utils.TipoOperacion;
 
 import lombok.extern.slf4j.Slf4j;
@@ -76,9 +79,9 @@ public class MovimientosServiceImpl implements MovimientosService {
     return servProdApi.getProducto(idProducto)
         .flatMap(prodApi -> {
           return servSaldoRepo.findFirstByCodigoProducto(idProducto)
-              .flatMap(entidad -> {
-                return Mono.just(ModelMapperUtils.map(entidad, SaldoRes.class));
-              });
+              .flatMap(entidad -> 
+                Mono.just(ModelMapperUtils.map(entidad, SaldoRes.class))
+              );
         });
   }
 
@@ -121,13 +124,60 @@ public class MovimientosServiceImpl implements MovimientosService {
               .switchIfEmpty(Flux.empty());
         });
   }
-
-  /**
+  
+  
+  public Mono<TransaccionRes> postTransaccionByInstrumentId(InfoTransacionReq transaccion) {
+    return null;
+    
+  }
+  
+  private DataTransaccionesDto getDataTransaccion(ProductoRolesRes prodRolApi, 
+      Long numOptmes, Saldo saldoActual, InfoTransacionReq transaccion,
+      TipoInstrumento tipoInstrumento, String idInstrumento) {
+    Saldo nuevoSaldoReg = ModelMapperUtils.map(saldoActual, Saldo.class);
+    Transaccion nuevaTransaccion = TransaccionesUtils.getRegistroOperacion(
+        transaccion, prodRolApi);
+    nuevaTransaccion.setSaldoInicial(nuevoSaldoReg.getSaldoActual());
+    nuevaTransaccion.setSaldoFinal(nuevoSaldoReg.getSaldoActual());
+    nuevaTransaccion.setTipoInstrumento(tipoInstrumento);
+    nuevaTransaccion.setIdInstrumento(idInstrumento);
+    Transaccion nuevaComision = TransaccionesUtils.getRegistroOperacion(
+        transaccion, prodRolApi);
+    nuevaTransaccion.setTipoInstrumento(TipoInstrumento.CANAL_POR_DEFECTO);
+    nuevaTransaccion.setIdInstrumento("");
+    List<Transaccion> listaTransacciones = new ArrayList<>();   
+    Double comision = TransaccionesUtils.getComision(numOptmes, prodRolApi);
+    Double nuevoSaldo = TransaccionesUtils.nuevoSaldo(
+        transaccion.getTipoOperacion(), nuevoSaldoReg.getSaldoActual(), 
+        comision, transaccion.getMontoOperacion());
+    if (nuevoSaldo >= 0.00D) {
+      log.info(String.format("Transaccion esta %s", ResultadoTransaccion.APROBADA));
+      nuevaTransaccion.setResultadoTransaccion(ResultadoTransaccion.APROBADA);
+      nuevaTransaccion.setSaldoFinal(nuevoSaldo + comision);
+      nuevoSaldoReg.setSaldoActual(nuevoSaldo);
+    }
+    listaTransacciones.add(nuevaTransaccion);
+    if (comision > 0.00D && nuevoSaldo >= 0.00D) {
+      nuevaComision.setMontoTransaccion(comision);
+      nuevaComision.setCodigoOperacion(TipoOperacion.CARGO);
+      nuevaComision.setSaldoInicial(nuevoSaldo + comision);
+      nuevaComision.setSaldoFinal(nuevoSaldo);
+      nuevaComision.setObservacionTransaccion(
+          TipoComision.COMISION_LIMITE_OPERACION.toString());
+      nuevaComision.setResultadoTransaccion(ResultadoTransaccion.APROBADA);
+      listaTransacciones.add(nuevaComision);
+    }
+    return new DataTransaccionesDto(nuevoSaldoReg, 
+        nuevaTransaccion.getResultadoTransaccion(), listaTransacciones);    
+  }
+  
+  
+  /*
    * Crea una nueva transacción y la guarda en el sistema.
    * 
    * @param transaccion Objeto que contiene la información de la transacción a crear.
    * @return Mono que emite la respuesta de la transacción creada.
-   */
+   */  
   @Override
   public Mono<TransaccionRes> postTransaccion(InfoTransacionReq transaccion) {
     return servProdApi.getProductoRoles(transaccion.getIdProducto())
@@ -140,49 +190,78 @@ public class MovimientosServiceImpl implements MovimientosService {
               log.info(String.format("Numero Opeaciones mes : %d", numOptmes));
               return getSaldoPorIdProd(transaccion.getIdProducto())
                   .flatMap(saldoActual -> {
-                    Saldo nuevoSaldoReg = ModelMapperUtils.map(saldoActual, Saldo.class);
-                    log.info(String.format("Saldo Actual : %.2f", nuevoSaldoReg.getSaldoActual()));
-                    Transaccion nuevaTransaccion = TransaccionesUtils.getRegistroOperacion(
-                        transaccion, prodRolApi);
-                    nuevaTransaccion.setSaldoInicial(nuevoSaldoReg.getSaldoActual());
-                    nuevaTransaccion.setSaldoFinal(nuevoSaldoReg.getSaldoActual());
-                    Transaccion nuevaComision = TransaccionesUtils.getRegistroOperacion(
-                        transaccion, prodRolApi);
-                    List<Transaccion> listaTransacciones = new ArrayList<>();
-                    Double comision = TransaccionesUtils.getComision(numOptmes, prodRolApi);
-                    Double nuevoSaldo = TransaccionesUtils.nuevoSaldo(
-                        transaccion.getTipoOperacion(), nuevoSaldoReg.getSaldoActual(), 
-                        comision, transaccion.getMontoOperacion());
-                    if (nuevoSaldo >= 0.00D) {
-                      log.info(String.format("Transaccion esta %s", ResultadoTransaccion.APROBADA));
-                      nuevaTransaccion.setResultadoTransaccion(ResultadoTransaccion.APROBADA);
-                      nuevaTransaccion.setSaldoFinal(nuevoSaldo + comision);
-                      nuevoSaldoReg.setSaldoActual(nuevoSaldo);
-                    }
-                    listaTransacciones.add(nuevaTransaccion);
-                    if (comision > 0.00D) {
-                      nuevaComision.setMontoTransaccion(comision);
-                      nuevaComision.setCodigoOperacion(TipoOperacion.CARGO);
-                      nuevaComision.setSaldoInicial(nuevoSaldo + comision);
-                      nuevaComision.setSaldoFinal(nuevoSaldo);
-                      nuevaComision.setObservacionTransaccion(
-                          TipoComision.COMISION_LIMITE_OPERACION.toString());
-                      nuevaComision.setResultadoTransaccion(ResultadoTransaccion.APROBADA);
-                      listaTransacciones.add(nuevaComision);
-                    }
-                    return servSaldoRepo.save(nuevoSaldoReg)
+                    DataTransaccionesDto dataTransacciones = getDataTransaccion(
+                        prodRolApi, numOptmes, saldoActual, transaccion, 
+                        TipoInstrumento.CANAL_POR_DEFECTO, "");
+                    return servSaldoRepo.save(dataTransacciones.getNuevoSaldoReg())
                         .flatMap(saldoDB -> {
-                          return servMovRepo.saveAll(listaTransacciones)
+                          return servMovRepo.saveAll(dataTransacciones.getNuevasTransacciones())
                               .take(1)
                               .single()
-                              .flatMap(item -> {
-                                return Mono.just(ModelMapperUtils.map(item, TransaccionRes.class));
-                              });
+                              .flatMap(item -> 
+                                Mono.just(ModelMapperUtils.map(item, TransaccionRes.class))
+                              );
                         });
                   });
             });
         });
   }
+  
+//  @Override
+//  public Mono<TransaccionRes> postTransaccion(InfoTransacionReq transaccion) {
+//    return servProdApi.getProductoRoles(transaccion.getIdProducto())
+//        .filter(prodRolApiF1 -> TransaccionesUtils.clienteAutorizado(transaccion, prodRolApiF1))
+//        .flatMap(prodRolApi -> {
+//          return mongoOperations.count(servMovRepo.getDatosDeEsteMesQuery(prodRolApi.getId()), 
+//              Transaccion.class)
+//            .filter(countAny -> true)
+//            .flatMap(numOptmes -> {
+//              log.info(String.format("Numero Opeaciones mes : %d", numOptmes));
+//              return getSaldoPorIdProd(transaccion.getIdProducto())
+//                  .flatMap(saldoActual -> {
+//                    Saldo nuevoSaldoReg = ModelMapperUtils.map(saldoActual, Saldo.class);
+//                    log.info(String.format("Saldo Actual : %.2f", nuevoSaldoReg.getSaldoActual()));
+//                    Transaccion nuevaTransaccion = TransaccionesUtils.getRegistroOperacion(
+//                        transaccion, prodRolApi);
+//                    nuevaTransaccion.setSaldoInicial(nuevoSaldoReg.getSaldoActual());
+//                    nuevaTransaccion.setSaldoFinal(nuevoSaldoReg.getSaldoActual());
+//                    Transaccion nuevaComision = TransaccionesUtils.getRegistroOperacion(
+//                        transaccion, prodRolApi);
+//                    List<Transaccion> listaTransacciones = new ArrayList<>();
+//                    Double comision = TransaccionesUtils.getComision(numOptmes, prodRolApi);
+//                    Double nuevoSaldo = TransaccionesUtils.nuevoSaldo(
+//                        transaccion.getTipoOperacion(), nuevoSaldoReg.getSaldoActual(), 
+//                        comision, transaccion.getMontoOperacion());
+//                    if (nuevoSaldo >= 0.00D) {
+//                      log.info(String.format("Transaccion esta %s", ResultadoTransaccion.APROBADA));
+//                      nuevaTransaccion.setResultadoTransaccion(ResultadoTransaccion.APROBADA);
+//                      nuevaTransaccion.setSaldoFinal(nuevoSaldo + comision);
+//                      nuevoSaldoReg.setSaldoActual(nuevoSaldo);
+//                    }
+//                    listaTransacciones.add(nuevaTransaccion);
+//                    if (comision > 0.00D) {
+//                      nuevaComision.setMontoTransaccion(comision);
+//                      nuevaComision.setCodigoOperacion(TipoOperacion.CARGO);
+//                      nuevaComision.setSaldoInicial(nuevoSaldo + comision);
+//                      nuevaComision.setSaldoFinal(nuevoSaldo);
+//                      nuevaComision.setObservacionTransaccion(
+//                          TipoComision.COMISION_LIMITE_OPERACION.toString());
+//                      nuevaComision.setResultadoTransaccion(ResultadoTransaccion.APROBADA);
+//                      listaTransacciones.add(nuevaComision);
+//                    }
+//                    return servSaldoRepo.save(nuevoSaldoReg)
+//                        .flatMap(saldoDB -> {
+//                          return servMovRepo.saveAll(listaTransacciones)
+//                              .take(1)
+//                              .single()
+//                              .flatMap(item -> {
+//                                return Mono.just(ModelMapperUtils.map(item, TransaccionRes.class));
+//                              });
+//                        });
+//                  });
+//            });
+//        });
+//  }
   
   /**
    * Realiza una solicitud POST para realizar una transacción interna en el banco.
@@ -215,15 +294,15 @@ public class MovimientosServiceImpl implements MovimientosService {
                 return postTransaccion(outTransaccion)
                     .filter(outTransRes -> 
                     outTransRes.getResultadoTransaccion() == ResultadoTransaccion.APROBADA)
-                    .flatMap(transOut -> {
-                      return postTransaccion(inTransaccion)
+                    .flatMap(transOut -> 
+                      postTransaccion(inTransaccion)
                           .filter(inTransRes -> 
                           inTransRes.getResultadoTransaccion() == ResultadoTransaccion.APROBADA)
-                          .flatMap(transIn -> {
-                            return Mono.just(transOut);
-                          })
-                          .switchIfEmpty(rollBackTransaccion(outTransaccion));
-                    })
+                          .flatMap(transIn -> 
+                            Mono.just(transOut)
+                          )
+                          .switchIfEmpty(rollBackTransaccion(outTransaccion))
+                    )
                     .switchIfEmpty(
                         Mono.error(new RuntimeException("Transaccion Fallida Cuenta Emisora")));
               });
@@ -231,13 +310,15 @@ public class MovimientosServiceImpl implements MovimientosService {
     
   }
   
-  /**
+  /*
    * Obtiene la información de saldos diarios por ID de producto.
    * 
-   * @param idProducto Identificador del producto del cual se desea obtener la información de saldos.
+   * @param idProducto Identificador del producto del cual se desea 
+   * obtener la información de saldos.
    * @return Mono que emite la respuesta con la información de saldos diarios.
    */
-  public Mono<SaldoDiarioInfoRes> getInformSaldosByIdProducto(String idProducto){
+  @Override
+  public Mono<SaldoDiarioInfoRes> getInformSaldosByIdProducto(String idProducto) {
     return servProdApi.getProductoRoles(idProducto)
         .flatMap(prodApi -> {
           return mongoOperations.find(servMovRepo.getDatosDeEsteMesQuery(idProducto), 
@@ -251,10 +332,11 @@ public class MovimientosServiceImpl implements MovimientosService {
         });
   }
   
-  /**
+  /*
    * Obtiene todos los impuestos asociados a un producto por su ID.
    * 
-   * @param idProducto Identificador del producto del cual se desean obtener los impuestos.
+   * @param idProducto Identificador del producto del cual se desean 
+   * obtener los impuestos.
    * @return Mono que emite la respuesta con todos los impuestos asociados al producto.
    */
   @Override

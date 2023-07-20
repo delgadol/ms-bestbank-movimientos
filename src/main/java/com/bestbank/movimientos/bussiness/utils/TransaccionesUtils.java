@@ -126,14 +126,15 @@ public class TransaccionesUtils {
   }
   
   
-  public static SaldoDiarioInfoRes getInfoSaldoDiario (String IdProducto, List<Transaccion> listaTransacciones) {
+  public static SaldoDiarioInfoRes getInfoSaldoDiario(String idProducto, 
+      List<Transaccion> listaTransacciones) {
     
     Map<Integer, Double> promedioDia = listaTransacciones.stream()
         .collect(Collectors.groupingBy(Transaccion::getDiaTransaccion,
             Collectors.averagingDouble(Transaccion::getSaldoFinal)));
     
     SaldoDiarioInfoRes informe = new SaldoDiarioInfoRes();
-    informe.setIdProducto(IdProducto);
+    informe.setIdProducto(idProducto);
     Calendar calendar = Calendar.getInstance();    
     informe.setMes(calendar.get(Calendar.MONTH) + 1);
     informe.setDatosInforme(promedioDia);
