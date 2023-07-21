@@ -77,12 +77,12 @@ public class MovimientosServiceImpl implements MovimientosService {
   @Override
   public Mono<SaldoRes> getProductBalance(String idProducto) {
     return servProdApi.getProducto(idProducto)
-        .flatMap(prodApi -> {
-          return servSaldoRepo.findFirstByCodigoProducto(idProducto)
+        .flatMap(prodApi -> 
+          servSaldoRepo.findFirstByCodigoProducto(idProducto)
               .flatMap(entidad -> 
                 Mono.just(ModelMapperUtils.map(entidad, SaldoRes.class))
-              );
-        });
+              )
+        );
   }
 
   /**
@@ -95,13 +95,13 @@ public class MovimientosServiceImpl implements MovimientosService {
   public Flux<SaldoRes> getAllBalanceByClientId(String idCliente) {
     return servProdApi.getCliente(idCliente)
         .flux()
-        .flatMap(clienteApi -> {
-          return servSaldoRepo.findAllByIdPersona(idCliente)
-              .flatMap(saldoProd -> {
-                return Mono.just(ModelMapperUtils.map(saldoProd, SaldoRes.class)).flux();
-              })
-              .switchIfEmpty(Flux.empty());
-        });
+        .flatMap(clienteApi -> 
+          servSaldoRepo.findAllByIdPersona(idCliente)
+              .flatMap(saldoProd -> 
+                Mono.just(ModelMapperUtils.map(saldoProd, SaldoRes.class)).flux()
+              )
+              .switchIfEmpty(Flux.empty())
+        );
   }
   
   /**
@@ -114,15 +114,15 @@ public class MovimientosServiceImpl implements MovimientosService {
   public Flux<TransaccionRes> getAllTransaccionByProductId(String idProducto) {
     return servProdApi.getProducto(idProducto)
         .flux()
-        .flatMap(productoApi -> {
-          return mongoOperations.find(
+        .flatMap(productoApi -> 
+           mongoOperations.find(
               servMovRepo.getDatosPorCodigoYFechaActualY3MesesAtrasQuery(idProducto),
               Transaccion.class)
-              .flatMap(entidad -> {
-                return Mono.just(ModelMapperUtils.map(entidad, TransaccionRes.class)).flux();
-              })
-              .switchIfEmpty(Flux.empty());
-        });
+              .flatMap(entidad -> 
+                Mono.just(ModelMapperUtils.map(entidad, TransaccionRes.class)).flux()
+              )
+              .switchIfEmpty(Flux.empty())
+        );
   }
   
   
@@ -182,8 +182,8 @@ public class MovimientosServiceImpl implements MovimientosService {
   public Mono<TransaccionRes> postTransaccion(InfoTransacionReq transaccion) {
     return servProdApi.getProductoRoles(transaccion.getIdProducto())
         .filter(prodRolApiF1 -> TransaccionesUtils.clienteAutorizado(transaccion, prodRolApiF1))
-        .flatMap(prodRolApi -> {
-          return mongoOperations.count(servMovRepo.getDatosDeEsteMesQuery(prodRolApi.getId()), 
+        .flatMap(prodRolApi -> 
+          mongoOperations.count(servMovRepo.getDatosDeEsteMesQuery(prodRolApi.getId()), 
               Transaccion.class)
             .filter(countAny -> true)
             .flatMap(numOptmes -> {
@@ -194,17 +194,17 @@ public class MovimientosServiceImpl implements MovimientosService {
                         prodRolApi, numOptmes, saldoActual, transaccion, 
                         TipoInstrumento.CANAL_POR_DEFECTO, "");
                     return servSaldoRepo.save(dataTransacciones.getNuevoSaldoReg())
-                        .flatMap(saldoDB -> {
-                          return servMovRepo.saveAll(dataTransacciones.getNuevasTransacciones())
+                        .flatMap(saldoDB -> 
+                          servMovRepo.saveAll(dataTransacciones.getNuevasTransacciones())
                               .take(1)
                               .single()
                               .flatMap(item -> 
                                 Mono.just(ModelMapperUtils.map(item, TransaccionRes.class))
-                              );
-                        });
+                              )
+                        );
                   });
-            });
-        });
+            })
+        );
   }
   
 //  @Override
@@ -288,10 +288,10 @@ public class MovimientosServiceImpl implements MovimientosService {
     inTransaccion.setMontoOperacion(operacionInterna.getMontoOperacion());
     inTransaccion.setObervacionTransaccion(operacionInterna.getObervacionTransaccion());
     return servProdApi.getProducto(outTransaccion.getIdProducto())
-        .flatMap(prodOut -> { 
-          return servProdApi.getProducto(inTransaccion.getIdProducto())
-              .flatMap(prodIn -> {
-                return postTransaccion(outTransaccion)
+        .flatMap(prodOut ->  
+          servProdApi.getProducto(inTransaccion.getIdProducto())
+              .flatMap(prodIn -> 
+                postTransaccion(outTransaccion)
                     .filter(outTransRes -> 
                     outTransRes.getResultadoTransaccion() == ResultadoTransaccion.APROBADA)
                     .flatMap(transOut -> 
@@ -304,9 +304,9 @@ public class MovimientosServiceImpl implements MovimientosService {
                           .switchIfEmpty(rollBackTransaccion(outTransaccion))
                     )
                     .switchIfEmpty(
-                        Mono.error(new RuntimeException("Transaccion Fallida Cuenta Emisora")));
-              });
-        });
+                        Mono.error(new RuntimeException("Transaccion Fallida Cuenta Emisora")))
+              )
+        );
     
   }
   
@@ -320,16 +320,16 @@ public class MovimientosServiceImpl implements MovimientosService {
   @Override
   public Mono<SaldoDiarioInfoRes> getInformSaldosByIdProducto(String idProducto) {
     return servProdApi.getProductoRoles(idProducto)
-        .flatMap(prodApi -> {
-          return mongoOperations.find(servMovRepo.getDatosDeEsteMesQuery(idProducto), 
+        .flatMap(prodApi -> 
+          mongoOperations.find(servMovRepo.getDatosDeEsteMesQuery(idProducto), 
               Transaccion.class)
               .collectList()
-              .flatMap(listTransacciones -> {
-                return  Mono.just(
+              .flatMap(listTransacciones -> 
+                Mono.just(
                     TransaccionesUtils.getInfoSaldoDiario(idProducto, listTransacciones)
-                    );
-              });
-        });
+                    )
+              )
+        );
   }
   
   /*
@@ -342,15 +342,15 @@ public class MovimientosServiceImpl implements MovimientosService {
   @Override
   public Mono<TransaccionRes> getAllTaxByIdProduct(String idProducto) {
     return servProdApi.getProductoRoles(idProducto)
-        .flatMap(prodApi -> {
-          return mongoOperations.find(servMovRepo.getDatosDeEsteMesQuery(idProducto), 
+        .flatMap(prodApi -> 
+          mongoOperations.find(servMovRepo.getDatosDeEsteMesQuery(idProducto), 
               Transaccion.class)
               .filter(itemDb -> itemDb.getObservacionTransaccion().contains("COMISION"))
               .single()
-              .flatMap(itemAf1 -> {
-                return Mono.just(ModelMapperUtils.map(itemAf1, TransaccionRes.class));
-              });
-        });
+              .flatMap(itemAf1 -> 
+                Mono.just(ModelMapperUtils.map(itemAf1, TransaccionRes.class))
+              )
+        );
   }
   
   
@@ -369,9 +369,7 @@ public class MovimientosServiceImpl implements MovimientosService {
    */  
   private Mono<Saldo> getSaldoPorIdProd(String idProducto) {
     return servSaldoRepo.findFirstByCodigoProducto(idProducto)
-    .flatMap(saldoActual -> {
-      return Mono.just(saldoActual);      
-    });
+    .flatMap(Mono::just);
   }
 
 
