@@ -201,8 +201,6 @@ public class MovimientosServiceImpl implements MovimientosService {
         .single()
         .map(SaldoContMovimientos::getCodigoProducto)
         .switchIfEmpty(productoDefTransaccion(prodAsociados));
-    
-
 
     prodTransaccion.subscribe(t -> log.info("PRDUCTO " + t));
     
@@ -288,6 +286,7 @@ public class MovimientosServiceImpl implements MovimientosService {
       TipoInstrumento tipoInstrumento, String idInstrumento) {
     return servProdApi.getProductoRoles(transaccion.getIdProducto())
         .filter(prodRolApiF1 -> TransaccionesUtils.clienteAutorizado(transaccion, prodRolApiF1))
+        .switchIfEmpty(Mono.error(new Throwable("Cliente no Autorizado")))
         .flatMap(prodRolApi -> 
           mongoOperations.count(servMovRepo.getDatosDeEsteMesQuery(prodRolApi.getId()), 
               Transaccion.class)
