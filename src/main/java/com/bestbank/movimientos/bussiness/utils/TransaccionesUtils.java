@@ -68,14 +68,16 @@ public class TransaccionesUtils {
    * el número de operaciones realizadas en el mes y el producto con sus roles asociados.
    *
    * @param numOprMes El número de operaciones realizadas en el mes.
-   * @param producto  El producto con sus roles asociados.
+   * @param maxOperacionesMes  Maximo d eoperciones por mes
+   * @param costExtraOperacionesMes Maximo costo por acada operacion adcional
    * @return La comisión correspondiente a la transacción.
    */
-  public static Double getComision(Long numOprMes, ProductoRolesRes producto) {
+  public static Double getComision(Long numOprMes, Integer maxOperacionesMes, 
+      Double costExtraOperacionesMes) {
     log.info(String.format("Operaciones Mes : %d y Maximas Mes: %d", 
-        numOprMes, producto.getMaxOperacionesMes()));
-    return (numOprMes < producto.getMaxOperacionesMes()) ? 0.0D : 
-      producto.getCostExtraOperacionesMes();
+        numOprMes, maxOperacionesMes));
+    return (numOprMes < maxOperacionesMes) ? 0.0D : 
+      costExtraOperacionesMes;
   }
   
   /**

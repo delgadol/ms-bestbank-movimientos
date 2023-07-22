@@ -1,6 +1,7 @@
 package com.bestbank.movimientos.bussiness.services.impl;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import com.bestbank.movimientos.bussiness.client.WebClientApi;
 import com.bestbank.movimientos.bussiness.dto.res.InstrumentoAsoRes;
@@ -11,6 +12,7 @@ import lombok.extern.log4j.Log4j2;
 import reactor.core.publisher.Mono;
 
 @Log4j2
+@Service
 public class InstrumentoApiClientServiceImpl implements InstrumentosApiClientService {
 
   @Value("${app.instrumentoUrl}")

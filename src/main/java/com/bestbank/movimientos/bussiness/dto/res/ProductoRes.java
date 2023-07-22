@@ -1,5 +1,7 @@
 package com.bestbank.movimientos.bussiness.dto.res;
 
+
+
 import com.bestbank.movimientos.domain.utils.GrupoProducto;
 import com.bestbank.movimientos.domain.utils.TipoCliente;
 import com.bestbank.movimientos.domain.utils.TipoProducto;
@@ -20,13 +22,17 @@ public class ProductoRes {
   
   private String codigoProducto;
   
+  private String codigoPersona;
+  
   private String estado;
   
   private TipoCliente tipoCliente;
   
   private Integer maxOperacionesMes;
   
-  private Integer minDiaMesOperacion;  
+  private Integer minDiaMesOperacion; 
+  
+  private Double costExtraOperacionesMes;
   
 
 }

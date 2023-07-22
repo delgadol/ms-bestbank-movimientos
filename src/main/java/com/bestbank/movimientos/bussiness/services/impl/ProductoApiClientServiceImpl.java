@@ -5,9 +5,9 @@ import org.springframework.stereotype.Service;
 
 import com.bestbank.movimientos.bussiness.client.WebClientApi;
 import com.bestbank.movimientos.bussiness.dto.res.ClienteRes;
+import com.bestbank.movimientos.bussiness.dto.res.ProductoRes;
 import com.bestbank.movimientos.bussiness.dto.res.ProductoRolesRes;
 import com.bestbank.movimientos.bussiness.services.ProductoApiClientService;
-import com.bestbank.movimientos.domain.model.Producto;
 
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -33,10 +33,10 @@ public class ProductoApiClientServiceImpl implements ProductoApiClientService {
   private String productoRolUrl;
   
   @Override
-  public Mono<Producto> getProducto(String idProducto) {
+  public Mono<ProductoRes> getProducto(String idProducto) {
     log.info(String.format("Consultando Api Producto : %s", idProducto));
     return WebClientApi.getMono(String.format(this.productoUrl, idProducto), 
-        Producto.class, String.format("Error al Buscar Producto: %s", idProducto));
+        ProductoRes.class, String.format("Error al Buscar Producto: %s", idProducto));
   }
 
   @Override

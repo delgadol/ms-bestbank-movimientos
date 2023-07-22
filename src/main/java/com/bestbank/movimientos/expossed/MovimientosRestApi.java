@@ -1,6 +1,5 @@
 package com.bestbank.movimientos.expossed;
 
-import java.util.List;
 
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,12 +9,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.bestbank.movimientos.bussiness.dto.req.InfoTransaccionInstReq;
 import com.bestbank.movimientos.bussiness.dto.req.InfoTransaccionInternaReq;
 import com.bestbank.movimientos.bussiness.dto.req.InfoTransacionReq;
 import com.bestbank.movimientos.bussiness.dto.res.SaldoDiarioInfoRes;
 import com.bestbank.movimientos.bussiness.dto.res.SaldoRes;
 import com.bestbank.movimientos.bussiness.dto.res.TransaccionRes;
 import com.bestbank.movimientos.bussiness.services.MovimientosService;
+import com.bestbank.movimientos.domain.utils.TipoInstrumento;
 
 import jakarta.validation.Valid;
 import reactor.core.publisher.Flux;
@@ -68,8 +69,15 @@ public class MovimientosRestApi {
    */
   @PostMapping("")
   public Mono<TransaccionRes> postTransaccion(@Valid @RequestBody InfoTransacionReq transaccion) {
-    return servMovimientos.postTransaccion(transaccion);
+    return servMovimientos.postTransaccion(transaccion, TipoInstrumento.CANAL_POR_DEFECTO, "");
   }
+  
+  @PostMapping("/instrumentos")
+  public Mono<TransaccionRes> postTransaccionByInstrumento(
+      @Valid @RequestBody InfoTransaccionInstReq transaccion) {
+    return servMovimientos.postTransaccionByInstrumento(transaccion);
+  }
+  
   
   /**
    * Crea una nueva transacción con la información proporcionada.

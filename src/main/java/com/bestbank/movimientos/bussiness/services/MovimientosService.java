@@ -1,12 +1,13 @@
 package com.bestbank.movimientos.bussiness.services;
 
-import java.util.List;
 
+import com.bestbank.movimientos.bussiness.dto.req.InfoTransaccionInstReq;
 import com.bestbank.movimientos.bussiness.dto.req.InfoTransaccionInternaReq;
 import com.bestbank.movimientos.bussiness.dto.req.InfoTransacionReq;
 import com.bestbank.movimientos.bussiness.dto.res.SaldoDiarioInfoRes;
 import com.bestbank.movimientos.bussiness.dto.res.SaldoRes;
 import com.bestbank.movimientos.bussiness.dto.res.TransaccionRes;
+import com.bestbank.movimientos.domain.utils.TipoInstrumento;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -24,11 +25,15 @@ public interface MovimientosService {
   
   public Flux<TransaccionRes> getAllTransaccionByProductId(String idProducto);  
   
-  public Mono<TransaccionRes> postTransaccion(InfoTransacionReq transaccion);
+  public Mono<TransaccionRes> postTransaccion(InfoTransacionReq transaccion,
+      TipoInstrumento tipoInstrumento, String idInstrumento);
   
   public Mono<TransaccionRes> postTransaccionIntoBanck(InfoTransaccionInternaReq operacionInterna);
   
   public Mono<SaldoDiarioInfoRes> getInformSaldosByIdProducto(String idProducto);
   
   public Mono<TransaccionRes> getAllTaxByIdProduct(String idProducto);
+  
+  public Mono<TransaccionRes> postTransaccionByInstrumento(InfoTransaccionInstReq transaccion);
+  
 }

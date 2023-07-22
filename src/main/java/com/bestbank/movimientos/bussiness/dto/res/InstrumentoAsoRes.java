@@ -10,6 +10,8 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class InstrumentoAsoRes extends InstrumentoRes {
+  
+  private String codPersona;
 
   private List<ProductoAsociado> productosAsociados;
   

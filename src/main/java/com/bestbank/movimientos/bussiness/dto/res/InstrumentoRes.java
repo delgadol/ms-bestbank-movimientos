@@ -15,6 +15,8 @@ public class InstrumentoRes {
   
   private String codigoInstrumento;
   
+  private String codigoPersona;
+  
   private Date fecInicio;
   
   private Date fecFinal;

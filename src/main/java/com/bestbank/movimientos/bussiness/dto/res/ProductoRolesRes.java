@@ -3,13 +3,12 @@ package com.bestbank.movimientos.bussiness.dto.res;
 import java.util.ArrayList;
 import java.util.List;
 
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * Clase que representa la respuesta de los roles de un producto, 
- * extendiendo la clase "ProductoRes".
+ * Clase que representa la respuesta de asignación de personas y roles a un producto, 
+ * y extiende la clase "ProductoRes".
  */
 
 @Data
@@ -17,9 +16,6 @@ import lombok.EqualsAndHashCode;
 public class ProductoRolesRes extends ProductoRes {
   
 
-  private String codigoPersona;
-  
-  private Double costExtraOperacionesMes;
   
   private Double minSaldoMensual;
   
