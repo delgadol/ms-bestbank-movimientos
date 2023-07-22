@@ -134,6 +134,18 @@ public class MovimientosServiceImpl implements MovimientosService {
         );
   }
   
+  /**
+   * Verifica si una cuenta con saldo y movimientos soporta la operación de acuerdo 
+   * a la información de la transacción.
+   *
+   * @param saldoCuenta El objeto SaldoContMovimientos que representa el saldo 
+   * contable con movimientos de la cuenta.
+   * @param transaccion El objeto InfoTransaccionInstReq que contiene la información 
+   * de la transacción a realizar.
+   * @return true si la cuenta con saldo y movimientos soporta la operación, 
+   * false en caso contrario.
+   */
+
   private Boolean ctaSoportaOperacion(SaldoContMovimientos saldoCuenta,
       InfoTransaccionInstReq transaccion) {
     Double comision = TransaccionesUtils.getComision(saldoCuenta.getContMovimientos(), 
@@ -144,6 +156,15 @@ public class MovimientosServiceImpl implements MovimientosService {
     return (saldoCuenta.getSaldoActual() >= (nuevoSaldo + comision));
   }
   
+  /**
+   * Encuentra el producto predeterminado para realizar una transacción a partir 
+   * de la lista de productos asociados.
+   *
+   * @param prodAsociados El Flux que representa la lista de productos asociados al 
+   * instrumento.
+   * @return Un Mono que contiene el identificador del producto predeterminado para 
+   * la transacción.
+   */
 
   private Mono<String> productoDefTransaccion(Flux<ProductoAsociado> prodAsociados) {
     return prodAsociados
@@ -154,6 +175,15 @@ public class MovimientosServiceImpl implements MovimientosService {
         .single();
   }
   
+  /**
+   * Obtiene la información de la transacción relacionada con un producto e instrumento 
+   * específico.
+   *
+   * @param transaccion El objeto InfoTransaccionInstReq que contiene los datos de la 
+   * transacción a obtener.
+   * @return Un Mono que representa la información de la transacción requerida 
+   * (InfoTransacionReq).
+   */
   private Mono<InfoTransacionReq> getProductoInstTransaccion(InfoTransaccionInstReq transaccion) {
   
     Mono<InstrumentoAsoRes> instApiData = 
@@ -221,6 +251,18 @@ public class MovimientosServiceImpl implements MovimientosService {
     
   }
   
+  /**
+   * Obtiene los datos necesarios para realizar una transacción a partir de la información proporcionada.
+   *
+   * @param prodRolApi El objeto ProductoRolesRes que representa los roles del producto asociado a la transacción.
+   * @param numOptmes El número de opción del mes para la transacción.
+   * @param saldoActual El objeto Saldo que representa el saldo actual de la cuenta.
+   * @param transaccion El objeto InfoTransacionReq que contiene los datos de la transacción.
+   * @param tipoInstrumento El TipoInstrumento que indica el tipo de instrumento relacionado con la transacción.
+   * @param idInstrumento El identificador del instrumento relacionado con la transacción.
+   * @return Un objeto DataTransaccionesDto que contiene los datos requeridos para realizar la transacción.
+   */
+
   private DataTransaccionesDto getDataTransaccion(ProductoRolesRes prodRolApi, 
       Long numOptmes, Saldo saldoActual, InfoTransacionReq transaccion,
       TipoInstrumento tipoInstrumento, String idInstrumento) {
@@ -260,7 +302,12 @@ public class MovimientosServiceImpl implements MovimientosService {
         nuevaTransaccion.getResultadoTransaccion(), listaTransacciones);    
   }
   
-
+  /**
+   * Crea una nueva transacción relacionada con un instrumento en el sistema a partir de los datos proporcionados en la solicitud.
+   *
+   * @param transaccion El objeto InfoTransaccionInstReq que contiene los datos de la nueva transacción a crear.
+   * @return Un Mono que representa la respuesta de la solicitud (TransaccionRes).
+   */
   @Override
   public Mono<TransaccionRes> postTransaccionByInstrumento(
       InfoTransaccionInstReq transaccion) {

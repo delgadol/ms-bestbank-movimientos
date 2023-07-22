@@ -7,6 +7,11 @@ import com.bestbank.movimientos.bussiness.dto.ProductoAsociado;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+/**
+ * Clase que representa la respuesta de una solicitud de instrumento asociado.
+ * Esta clase hereda de la clase InstrumentoRes y contiene información adicional
+ * relacionada con la asociación de un instrumento con otros elementos del sistema.
+ */
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class InstrumentoAsoRes extends InstrumentoRes {

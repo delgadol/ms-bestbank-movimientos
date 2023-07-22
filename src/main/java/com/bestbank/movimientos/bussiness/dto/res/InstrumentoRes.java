@@ -6,6 +6,11 @@ import com.bestbank.movimientos.domain.utils.TipoInstrumento;
 
 import lombok.Data;
 
+/**
+ * Clase que representa la respuesta de una solicitud de instrumento.
+ * Contiene información y detalles relacionados con un instrumento específico.
+ */
+
 @Data
 public class InstrumentoRes {
 

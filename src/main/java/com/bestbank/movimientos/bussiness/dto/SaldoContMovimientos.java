@@ -7,6 +7,13 @@ import com.bestbank.movimientos.domain.utils.TipoProducto;
 
 import lombok.Data;
 
+/**
+ * Clase que representa el saldo y el contador movimientos en el sistema.
+ * Esta clase contiene información y datos relacionados con el saldo 
+ * y movimiento de una cuenta que ha experimentado movimiento.
+ * 
+ */
+
 @Data
 public class SaldoContMovimientos {
   

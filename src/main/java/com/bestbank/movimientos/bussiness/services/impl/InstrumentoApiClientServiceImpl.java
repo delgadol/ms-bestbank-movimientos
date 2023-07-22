@@ -5,12 +5,16 @@ import org.springframework.stereotype.Service;
 
 import com.bestbank.movimientos.bussiness.client.WebClientApi;
 import com.bestbank.movimientos.bussiness.dto.res.InstrumentoAsoRes;
-import com.bestbank.movimientos.bussiness.dto.res.ProductoRolesRes;
 import com.bestbank.movimientos.bussiness.services.InstrumentosApiClientService;
 
 import lombok.extern.log4j.Log4j2;
 import reactor.core.publisher.Mono;
 
+/**
+ * Implementación de la interfaz InstrumentosApiClientService que permite interactuar con el cliente API de Instrumentos.
+ * Proporciona métodos para realizar solicitudes y recibir respuestas relacionadas con instrumentos
+ * desde un servicio o API externo.
+ */
 @Log4j2
 @Service
 public class InstrumentoApiClientServiceImpl implements InstrumentosApiClientService {

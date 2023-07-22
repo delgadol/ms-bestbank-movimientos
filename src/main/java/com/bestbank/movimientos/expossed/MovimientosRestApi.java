@@ -72,6 +72,13 @@ public class MovimientosRestApi {
     return servMovimientos.postTransaccion(transaccion, TipoInstrumento.CANAL_POR_DEFECTO, "");
   }
   
+  /**
+   * Crea una nueva transacción relacionada con un instrumento en el sistema a partir de los datos proporcionados en la solicitud.
+   *
+   * @param transaccion El objeto InfoTransaccionInstReq que contiene los datos de la nueva transacción a crear.
+   * @return Un Mono que representa la respuesta de la solicitud (TransaccionRes).
+   */
+
   @PostMapping("/instrumentos")
   public Mono<TransaccionRes> postTransaccionByInstrumento(
       @Valid @RequestBody InfoTransaccionInstReq transaccion) {

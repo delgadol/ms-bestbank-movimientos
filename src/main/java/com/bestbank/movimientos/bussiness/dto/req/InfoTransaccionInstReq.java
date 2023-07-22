@@ -6,6 +6,14 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+/**
+ * Clase que representa una solicitud de información de transacción relacionada 
+ * con un instrumento.
+ * Contiene los datos y detalles necesarios para crear o procesar 
+ * una transacción asociada a un instrumento específico.
+ * 
+ */
+
 @Data
 public class InfoTransaccionInstReq {
   @NotEmpty
