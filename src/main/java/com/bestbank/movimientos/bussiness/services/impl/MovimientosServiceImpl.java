@@ -252,15 +252,19 @@ public class MovimientosServiceImpl implements MovimientosService {
   }
   
   /**
-   * Obtiene los datos necesarios para realizar una transacción a partir de la información proporcionada.
+   * Obtiene los datos necesarios para realizar una transacción a partir 
+   * de la información proporcionada.
    *
-   * @param prodRolApi El objeto ProductoRolesRes que representa los roles del producto asociado a la transacción.
+   * @param prodRolApi El objeto ProductoRolesRes que representa los roles 
+   * del producto asociado a la transacción.
    * @param numOptmes El número de opción del mes para la transacción.
    * @param saldoActual El objeto Saldo que representa el saldo actual de la cuenta.
    * @param transaccion El objeto InfoTransacionReq que contiene los datos de la transacción.
-   * @param tipoInstrumento El TipoInstrumento que indica el tipo de instrumento relacionado con la transacción.
+   * @param tipoInstrumento El TipoInstrumento que indica el tipo de instrumento 
+   * relacionado con la transacción.
    * @param idInstrumento El identificador del instrumento relacionado con la transacción.
-   * @return Un objeto DataTransaccionesDto que contiene los datos requeridos para realizar la transacción.
+   * @return Un objeto DataTransaccionesDto que contiene los datos requeridos para 
+   * realizar la transacción.
    */
 
   private DataTransaccionesDto getDataTransaccion(ProductoRolesRes prodRolApi, 
@@ -303,9 +307,11 @@ public class MovimientosServiceImpl implements MovimientosService {
   }
   
   /**
-   * Crea una nueva transacción relacionada con un instrumento en el sistema a partir de los datos proporcionados en la solicitud.
+   * Crea una nueva transacción relacionada con un instrumento en el sistema a partir
+   *  de los datos proporcionados en la solicitud.
    *
-   * @param transaccion El objeto InfoTransaccionInstReq que contiene los datos de la nueva transacción a crear.
+   * @param transaccion El objeto InfoTransaccionInstReq que contiene los datos de la 
+   * nueva transacción a crear.
    * @return Un Mono que representa la respuesta de la solicitud (TransaccionRes).
    */
   @Override
@@ -466,6 +472,71 @@ public class MovimientosServiceImpl implements MovimientosService {
     return servSaldoRepo.findFirstByCodigoProducto(idProducto)
     .flatMap(Mono::just);
   }
+
+  /**
+   * Obtiene el saldo del producto asociado a un instrumento específico en el sistema.
+   *
+   * @param idInstrumento El identificador único del instrumento del que se desea 
+   * obtener el saldo del producto asociado.
+   * @return Un Mono que representa la respuesta de la solicitud (SaldoRes).
+   */
+
+  @Override
+  public Mono<SaldoRes> getProductBalanceByInstrument(String idInstrumento) {
+    //Mono<String> idCtaPorDefecto = 
+    return  servInstApi.getInstrumentoInfo(idInstrumento)
+        .map(instData ->  
+          (!instData.getProductosAsociados().isEmpty()) 
+          ? instData.getProductosAsociados().get(0).getId() : null
+        )
+        .flatMap(this::getProductBalance);
+  }
+
+  /**
+   * Obtiene todas las transacciones relacionadas con un instrumento específico en 
+   * el sistema.
+   *
+   * @param idInstrumento El identificador único del instrumento del que se desean 
+   * obtener las transacciones.
+   * @return Un Flux que representa la secuencia de respuestas de las solicitudes 
+   * (TransaccionRes).
+    */
+  @Override
+  public Flux<TransaccionRes> getAllTransaccionByInstrument(String idInstrumento) {
+    return servInstApi.getInstrumentoInfo(idInstrumento)
+        .flux()
+        .flatMap(instInfo -> 
+          servMovRepo
+          .findAllByTipoInstrumentoAndIdInstrumentoOrderByFechaTransaccionDesc(
+              instInfo.getTipoInstrumento(), idInstrumento)
+              .map(s -> ModelMapperUtils.map(s, TransaccionRes.class))
+        )
+        .take(10);
+  }
+
+  /**
+   * Obtiene todas las últimas transacciones relacionadas con un producto específico 
+   * en el sistema.
+   *
+   * @param idProducto El identificador único del producto del que se desean obtener 
+   * las últimas transacciones.
+   * @return Un Flux que representa la secuencia de respuestas de las solicitudes 
+   * (TransaccionRes).
+   */
+  @Override
+  public Flux<TransaccionRes> getAllLastTraccionByProductId(String idProducto) {
+    return servProdApi.getProducto(idProducto)
+        .flux()
+        .flatMap(prodInf -> 
+          servMovRepo
+          .findAllByTipoProductoAndCodigoProductoOrderByFechaTransaccionDesc(
+              prodInf.getTipoProducto(), prodInf.getId())
+          .map(s -> ModelMapperUtils.map(s, TransaccionRes.class))
+        )
+        .take(10);
+  }
+  
+  
 
 
 }

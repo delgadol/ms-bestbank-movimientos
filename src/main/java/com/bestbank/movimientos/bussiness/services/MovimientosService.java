@@ -21,6 +21,10 @@ public interface MovimientosService {
   
   public Mono<SaldoRes> getProductBalance(String idProdcuto); 
   
+  public Mono<SaldoRes> getProductBalanceByInstrument(String idInstrumento);
+  
+  public Flux<TransaccionRes> getAllTransaccionByInstrument(String idInstrumento);  
+  
   public Flux<SaldoRes> getAllBalanceByClientId(String idCliente);
   
   public Flux<TransaccionRes> getAllTransaccionByProductId(String idProducto);  
@@ -35,5 +39,7 @@ public interface MovimientosService {
   public Mono<TransaccionRes> getAllTaxByIdProduct(String idProducto);
   
   public Mono<TransaccionRes> postTransaccionByInstrumento(InfoTransaccionInstReq transaccion);
+  
+  public Flux<TransaccionRes> getAllLastTraccionByProductId(String idProducto);
   
 }

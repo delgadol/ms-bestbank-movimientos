@@ -65,7 +65,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
   }
 
   private ResponseEntity<ErrorResponse> buildResponseEntity(HttpStatus httpStatus, Exception exc) {
-    return buildResponseEntity(httpStatus, exc, new ArrayList<String>());
+    return buildResponseEntity(httpStatus, exc, new ArrayList<>());
   }
 
   private ResponseEntity<ErrorResponse> buildResponseEntity(HttpStatus httpStatus, 

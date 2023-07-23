@@ -132,5 +132,51 @@ public class MovimientosRestApi {
     return servMovimientos.getAllTaxByIdProduct(idProducto);
   }
   
+  /**
+   * Obtiene todas las transacciones relacionadas con un instrumento específico en
+   *  el sistema.
+   *
+   * @param idInstrumento El identificador único del instrumento del que se desean 
+   * obtener las transacciones.
+   * @return Un Flux que representa la secuencia de respuestas de las solicitudes 
+   * (TransaccionRes).
+   */
+
+  @GetMapping("/instrumentos/{idInstrumento}/recientes")
+  public Flux<TransaccionRes> getAllTransaccionByInstrument(
+      @PathVariable(name = "idInstrumento") String idInstrumento) {
+    return servMovimientos.getAllTransaccionByInstrument(idInstrumento);
+  }
+  
+  /**
+   * Obtiene el saldo del producto asociado a un instrumento específico en el sistema.
+   *
+   * @param idInstrumento El identificador único del instrumento del que se desea
+   *  obtener el saldo del producto asociado.
+   * @return Un Mono que representa la respuesta de la solicitud (SaldoRes).
+   */
+
+  @GetMapping("/instrumentos/{idInstrumento}/saldos")
+  public Mono<SaldoRes> getProductBalanceByInstrument(
+      @PathVariable(name = "idInstrumento") String idInstrumento) {
+    return servMovimientos.getProductBalanceByInstrument(idInstrumento);
+  }
+  
+  /**
+   * Obtiene todas las últimas transacciones relacionadas con un producto específico 
+   * en el sistema.
+   *
+   * @param idProducto El identificador único del producto del que se desean obtener 
+   * las últimas transacciones.
+   * @return Un Flux que representa la secuencia de respuestas de las solicitudes 
+   * (TransaccionRes).
+   */
+  @GetMapping("/productos/{idProducto}/recientes")
+  public Flux<TransaccionRes> getAllLastTraccionByProductId(
+      @PathVariable(name = "idProducto")  String idProducto) {
+    return servMovimientos.getAllLastTraccionByProductId(idProducto);
+    
+  }
+  
 
 }
