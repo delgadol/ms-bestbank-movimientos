@@ -46,7 +46,7 @@ public class MovimientosRestApi {
   @GetMapping("/{idProducto}/saldo")
   public Mono<SaldoRes> getProductBalance(
       @PathVariable(name = "idProducto") String idProducto) {
-    return null;
+    return servMovimientos.getProductBalance(idProducto);
   }
   
   /**
@@ -73,9 +73,11 @@ public class MovimientosRestApi {
   }
   
   /**
-   * Crea una nueva transacción relacionada con un instrumento en el sistema a partir de los datos proporcionados en la solicitud.
+   * Crea una nueva transacción relacionada con un instrumento en el sistema a 
+   * partir de los datos proporcionados en la solicitud.
    *
-   * @param transaccion El objeto InfoTransaccionInstReq que contiene los datos de la nueva transacción a crear.
+   * @param transaccion El objeto InfoTransaccionInstReq que contiene los 
+   * datos de la nueva transacción a crear.
    * @return Un Mono que representa la respuesta de la solicitud (TransaccionRes).
    */
 
