@@ -1,0 +1,2 @@
+SET JAVA_HOME=C:\SDK\jdk-17
+mvnw clean verify sonar:sonar -Dsonar.projectKey=MS-BESTBANK-MOVIMIENTOS -Dsonar.projectName='MS-BESTBANK-MOVIMIENTOS' -Dsonar.host.url=http://192.168.1.113:9000 -Dsonar.token=sqp_ac4cb14e37d40b3505bb26309a4af70df1c3cebc

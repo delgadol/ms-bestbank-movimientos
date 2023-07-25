@@ -1,7 +1,9 @@
 package com.bestbank.movimientos.bussiness.client;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClient.Builder;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import lombok.extern.slf4j.Slf4j;
@@ -13,23 +15,32 @@ import reactor.core.publisher.Mono;
  * Proporciona métodos para realizar solicitudes HTTP a un servicio web externo.
  */
 @Slf4j
+@Service
 public class WebClientApi {
   
-  private static final WebClient webClient  = WebClient.builder().build();
-
+  private final WebClient.Builder webClient;
   
+    
+  public WebClientApi(Builder webClient) {
+    this.webClient = webClient;
+  }
+
+
   /**
    * Realiza una solicitud GET a la URL especificada y devuelve un Mono que emite la respuesta 
    * esperada.
    *
+   * @param baseUrl          La URL a la cual realizar la solicitud GET.
    * @param url          La URL a la cual realizar la solicitud GET.
    * @param responseType El tipo de respuesta esperada.
    * @param errorId      Identificador de error personalizado para la gestión de excepciones.
    * @return Un Mono que emite la respuesta esperada.
    */  
-  public static <T> Mono<T> getMono(String url, Class<T> responseType, String errorId) {
+  public <T> Mono<T> getMono(String baseUrl, String url, Class<T> responseType,
+      String errorId) {
     log.info(url);
-    return webClient.get()
+    return webClient.baseUrl(baseUrl).build()
+      .get()
       .uri(url)
       .retrieve()
       .bodyToMono(responseType)
@@ -45,14 +56,17 @@ public class WebClientApi {
    * Realiza una solicitud GET a la URL especificada y devuelve un Flux que emite la 
    * respuesta esperada.
    *
+   * @param baseUrl          La URL a la cual realizar la solicitud GET.
    * @param url          La URL a la cual realizar la solicitud GET.
    * @param responseType El tipo de respuesta esperada.
    * @param errorId      Identificador de error personalizado para la gestión de excepciones.
    * @return Un Flux que emite la respuesta esperada.
    */
-  public static <T> Flux<T> getFlux(String url, Class<T> responseType, String errorId) {
+  public <T> Flux<T> getFlux(String baseUrl, String url, Class<T> responseType, 
+      String errorId) {
     log.info(url);
-    return webClient.get()
+    return webClient.baseUrl(baseUrl).build()
+      .get()
       .uri(url)
       .retrieve()
       .bodyToFlux(responseType)

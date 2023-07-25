@@ -18,14 +18,24 @@ import reactor.core.publisher.Mono;
 @Log4j2
 @Service
 public class InstrumentoApiClientServiceImpl implements InstrumentosApiClientService {
+  
+  
+  private final WebClientApi webClientApi;
+
+  public InstrumentoApiClientServiceImpl(WebClientApi webClientApi) {
+    this.webClientApi = webClientApi;
+  }
 
   @Value("${app.instrumentoUrl}")
   private String instrumentoUrl;
   
+  @Value("${app.instrumentoUrlAso}")
+  private String instrumentoUrlAso;
+  
   @Override
   public Mono<InstrumentoAsoRes> getInstrumentoInfo(String idInstrumento) {
     log.info(String.format("Consultando Api Instreumento - Roles : %s", idInstrumento));
-    return WebClientApi.getMono(String.format(this.instrumentoUrl, idInstrumento), 
+    return webClientApi.getMono(instrumentoUrl, String.format(this.instrumentoUrlAso, idInstrumento), 
         InstrumentoAsoRes.class, String.format("Error al Buscar Producto Rol : %s", idInstrumento));
   }
 
