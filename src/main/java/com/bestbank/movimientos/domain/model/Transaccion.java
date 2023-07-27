@@ -1,20 +1,17 @@
 package com.bestbank.movimientos.domain.model;
 
 
-import java.beans.Transient;
-import java.util.Calendar;
-import java.util.Date;
-
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-
 import com.bestbank.movimientos.domain.utils.GrupoProducto;
 import com.bestbank.movimientos.domain.utils.ResultadoTransaccion;
 import com.bestbank.movimientos.domain.utils.TipoInstrumento;
 import com.bestbank.movimientos.domain.utils.TipoOperacion;
 import com.bestbank.movimientos.domain.utils.TipoProducto;
-
+import java.beans.Transient;
+import java.util.Calendar;
+import java.util.Date;
 import lombok.Data;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
  * Representa una transacción.

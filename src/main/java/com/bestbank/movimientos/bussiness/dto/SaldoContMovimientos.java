@@ -1,10 +1,8 @@
 package com.bestbank.movimientos.bussiness.dto;
 
-import java.util.Date;
-
 import com.bestbank.movimientos.domain.utils.GrupoProducto;
 import com.bestbank.movimientos.domain.utils.TipoProducto;
-
+import java.util.Date;
 import lombok.Data;
 
 /**

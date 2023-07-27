@@ -8,7 +8,6 @@ import com.bestbank.movimientos.bussiness.dto.res.SaldoDiarioInfoRes;
 import com.bestbank.movimientos.bussiness.dto.res.SaldoRes;
 import com.bestbank.movimientos.bussiness.dto.res.TransaccionRes;
 import com.bestbank.movimientos.domain.utils.TipoInstrumento;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

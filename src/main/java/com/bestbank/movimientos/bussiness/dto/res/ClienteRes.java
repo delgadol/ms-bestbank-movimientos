@@ -1,7 +1,6 @@
 package com.bestbank.movimientos.bussiness.dto.res;
 
 import com.bestbank.movimientos.domain.utils.TipoCliente;
-
 import lombok.Data;
 
 /**

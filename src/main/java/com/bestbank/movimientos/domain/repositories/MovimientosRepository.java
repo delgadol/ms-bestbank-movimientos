@@ -1,17 +1,14 @@
 package com.bestbank.movimientos.domain.repositories;
 
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Date;
-
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
-
 import com.bestbank.movimientos.domain.model.Transaccion;
 import com.bestbank.movimientos.domain.utils.TipoInstrumento;
 import com.bestbank.movimientos.domain.utils.TipoProducto;
-
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import reactor.core.publisher.Flux;
 
 /**

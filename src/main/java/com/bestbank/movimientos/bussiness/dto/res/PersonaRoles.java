@@ -1,9 +1,7 @@
 package com.bestbank.movimientos.bussiness.dto.res;
 
-import java.io.Serializable;
-
 import com.bestbank.movimientos.domain.utils.TipoPersonaRol;
-
+import java.io.Serializable;
 import lombok.Data;
 
 /**

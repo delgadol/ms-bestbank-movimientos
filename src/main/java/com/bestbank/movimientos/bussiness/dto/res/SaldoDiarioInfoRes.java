@@ -1,7 +1,6 @@
 package com.bestbank.movimientos.bussiness.dto.res;
 
 import java.util.Map;
-
 import lombok.Data;
 
 /*

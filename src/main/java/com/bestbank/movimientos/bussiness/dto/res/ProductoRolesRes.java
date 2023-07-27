@@ -2,7 +2,6 @@ package com.bestbank.movimientos.bussiness.dto.res;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

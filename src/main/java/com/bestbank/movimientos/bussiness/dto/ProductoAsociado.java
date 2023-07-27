@@ -2,7 +2,6 @@ package com.bestbank.movimientos.bussiness.dto;
 
 import com.bestbank.movimientos.domain.utils.GrupoProducto;
 import com.bestbank.movimientos.domain.utils.TipoProducto;
-
 import lombok.Data;
 
 /**

@@ -1,9 +1,7 @@
 package com.bestbank.movimientos.bussiness.dto.res;
 
-import java.util.List;
-
 import com.bestbank.movimientos.bussiness.dto.ProductoAsociado;
-
+import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

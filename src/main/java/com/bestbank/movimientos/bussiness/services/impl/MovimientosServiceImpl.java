@@ -1,13 +1,5 @@
 package com.bestbank.movimientos.bussiness.services.impl;
 
-import java.util.ArrayList;
-import java.util.DuplicateFormatFlagsException;
-import java.util.List;
-
-import org.springframework.data.mongodb.core.ReactiveMongoOperations;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.bestbank.movimientos.bussiness.dto.DataTransaccionesDto;
 import com.bestbank.movimientos.bussiness.dto.ProductoAsociado;
 import com.bestbank.movimientos.bussiness.dto.SaldoContMovimientos;
@@ -32,8 +24,13 @@ import com.bestbank.movimientos.domain.utils.ResultadoTransaccion;
 import com.bestbank.movimientos.domain.utils.TipoComision;
 import com.bestbank.movimientos.domain.utils.TipoInstrumento;
 import com.bestbank.movimientos.domain.utils.TipoOperacion;
-
+import java.util.ArrayList;
+import java.util.DuplicateFormatFlagsException;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.mongodb.core.ReactiveMongoOperations;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

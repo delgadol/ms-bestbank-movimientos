@@ -1,19 +1,17 @@
 package com.bestbank.movimientos.bussiness.utils;
 
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import com.bestbank.movimientos.bussiness.dto.req.InfoTransacionReq;
 import com.bestbank.movimientos.bussiness.dto.res.ProductoRolesRes;
 import com.bestbank.movimientos.bussiness.dto.res.SaldoDiarioInfoRes;
 import com.bestbank.movimientos.domain.model.Transaccion;
 import com.bestbank.movimientos.domain.utils.ResultadoTransaccion;
 import com.bestbank.movimientos.domain.utils.TipoOperacion;
-
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 /**
  * Clase de utilidades relacionadas con las transacciones.

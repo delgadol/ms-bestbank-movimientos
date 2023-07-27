@@ -1,10 +1,8 @@
 package com.bestbank.movimientos.bussiness.dto.res;
 
-import java.util.Date;
-
 import com.bestbank.movimientos.domain.utils.ResultadoTransaccion;
 import com.bestbank.movimientos.domain.utils.TipoOperacion;
-
+import java.util.Date;
 import lombok.Data;
 
 /**
