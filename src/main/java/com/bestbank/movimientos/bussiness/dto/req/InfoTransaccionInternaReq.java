@@ -15,6 +15,6 @@ import lombok.EqualsAndHashCode;
 public class InfoTransaccionInternaReq extends InfoTransacionReq{
   
   @NotEmpty
-  private String IdProducto2;
+  private String idProducto2;
   
 }
