@@ -379,13 +379,13 @@ public class MovimientosServiceImpl implements MovimientosService {
     outTransaccion.setCodPersona(operacionInterna.getCodPersona());
     outTransaccion.setTipoOperacion(TipoOperacion.CARGO);
     outTransaccion.setMontoOperacion(operacionInterna.getMontoOperacion());
-    outTransaccion.setObervacionTransaccion(operacionInterna.getObervacionTransaccion());
+    outTransaccion.setObservacionTransaccion(operacionInterna.getObservacionTransaccion());
     InfoTransacionReq inTransaccion = new InfoTransacionReq();
     inTransaccion.setIdProducto(operacionInterna.getIdProducto2());
     inTransaccion.setCodPersona(operacionInterna.getCodPersona());
     inTransaccion.setTipoOperacion(TipoOperacion.ABONO);
     inTransaccion.setMontoOperacion(operacionInterna.getMontoOperacion());
-    inTransaccion.setObervacionTransaccion(operacionInterna.getObervacionTransaccion());
+    inTransaccion.setObservacionTransaccion(operacionInterna.getObservacionTransaccion());
     return servProdApi.getProducto(outTransaccion.getIdProducto())
         .flatMap(prodOut ->  
           servProdApi.getProducto(inTransaccion.getIdProducto())

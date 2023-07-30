@@ -1,8 +1,7 @@
-package com.bestbank.movimientos.bussiness.dto.req;
+package com.bestbank.movimientos.bussiness.message.dto;
+
 
 import com.bestbank.movimientos.domain.utils.TipoOperacion;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 /**
@@ -10,19 +9,18 @@ import lombok.Data;
  */
 
 @Data
-public class InfoTransacionReq {
-  @NotEmpty
+public class InfoTransacionBrokerReq {
+  
+  private String codCtrlBroker;
+
   private String idProducto;
-  
-  @NotEmpty
+
   private String codPersona;
-  
-  @NotNull
+
   private TipoOperacion tipoOperacion;
   
-  @NotNull
   private Double montoOperacion;
-  
-  @NotEmpty
+
   private String observacionTransaccion;
+  
 }

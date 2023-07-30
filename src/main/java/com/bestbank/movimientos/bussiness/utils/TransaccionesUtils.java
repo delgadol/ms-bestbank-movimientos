@@ -95,7 +95,7 @@ public class TransaccionesUtils {
     nuevaTransaccion.setGrupoProducto(producto.getGrupoProducto());
     nuevaTransaccion.setMontoTransaccion(transaccion.getMontoOperacion());
     nuevaTransaccion.setTipoProducto(producto.getTipoProducto());
-    nuevaTransaccion.setObservacionTransaccion(transaccion.getObervacionTransaccion());
+    nuevaTransaccion.setObservacionTransaccion(transaccion.getObservacionTransaccion());
     nuevaTransaccion.setResultadoTransaccion(ResultadoTransaccion.RECHAZADA);
     nuevaTransaccion.setCodPersona(transaccion.getCodPersona());
     return nuevaTransaccion;

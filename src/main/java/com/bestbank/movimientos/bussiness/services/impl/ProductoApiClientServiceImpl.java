@@ -27,7 +27,7 @@ public class ProductoApiClientServiceImpl implements ProductoApiClientService {
     this.webClientApi = webClientApi;
   }
   
-  @Value("${app.simpleId}")
+  @Value("${app.apiSimpleId}")
   private String simpleID;
 
   @Value("${app.productosUrl}")

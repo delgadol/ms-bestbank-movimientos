@@ -1,6 +1,5 @@
 package com.bestbank.movimientos.bussiness.dto.res;
 
-import java.util.ArrayList;
 import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -20,8 +19,7 @@ public class ProductoRolesRes extends ProductoRes {
   
   private Double costMinSaldoMensual;
   
-  private List<PersonaRoles> personaRoles = new ArrayList<>();
-  
+  private List<PersonaRoles> personaRoles;  
   
   
 

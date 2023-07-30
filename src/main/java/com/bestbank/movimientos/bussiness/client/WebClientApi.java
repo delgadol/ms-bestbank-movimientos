@@ -37,7 +37,7 @@ public class WebClientApi {
    */  
   public <T> Mono<T> getMono(String baseUrl, String url, Class<T> responseType,
       String errorId) {
-    log.info(url);
+    log.info(baseUrl+url);
     return webClient.baseUrl(baseUrl).build()
       .get()
       .uri(url)
@@ -63,7 +63,7 @@ public class WebClientApi {
    */
   public <T> Flux<T> getFlux(String baseUrl, String url, Class<T> responseType, 
       String errorId) {
-    log.info(url);
+    log.info(baseUrl+url);
     return webClient.baseUrl(baseUrl).build()
       .get()
       .uri(url)

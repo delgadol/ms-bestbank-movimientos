@@ -25,6 +25,6 @@ public class InfoTransaccionInstReq {
   private Double montoOperacion;
   
   @NotEmpty
-  private String obervacionTransaccion;
+  private String observacionTransaccion;
 
 }
