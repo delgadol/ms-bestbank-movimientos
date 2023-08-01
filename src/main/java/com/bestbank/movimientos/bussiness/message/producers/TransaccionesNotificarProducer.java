@@ -18,9 +18,16 @@ public class TransaccionesNotificarProducer {
   private KafkaTemplate<String, String> kafkaTemplate;
   
   public void enviarTransaccionesNotificar(TransaccionBrokerRes transaccion) {
+    String[] idCtrlChannel = transaccion.getCodCtrlBroker().split(":");
+    String kafkaChannel = KAFKA_TOPIC;
+    if (idCtrlChannel.length > 1) {
+      transaccion.setCodCtrlBroker(idCtrlChannel[0]);
+      kafkaChannel = idCtrlChannel[1];
+    }
+    final String kafkaTopic = kafkaChannel;
     String jsonTransaccionBrokerRes  = JsonUtils.objectToJson(transaccion);
     log.info("cola >>" + jsonTransaccionBrokerRes );
-    this.kafkaTemplate.send(KAFKA_TOPIC, jsonTransaccionBrokerRes);
+    this.kafkaTemplate.send(kafkaTopic, jsonTransaccionBrokerRes);
     
   }
 
